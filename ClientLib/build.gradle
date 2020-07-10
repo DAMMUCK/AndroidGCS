@@ -120,6 +120,7 @@ dependencies {
 
     androidTestCompile 'junit:junit:4.12'
     androidTestCompile "org.robolectric:robolectric:3.0"
+
 }
 
 def getSoloLinkIp() {

@@ -123,5 +123,8 @@ allprojects {
                 password getMavenApiKey()
             }
         }
+        maven {
+            url 'https://navercorp.bintray.com/maps'
+        }
     }
 }
