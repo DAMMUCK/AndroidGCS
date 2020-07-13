@@ -8,6 +8,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TableLayout;
 import android.widget.Toast;
 
 import com.naver.maps.geometry.LatLng;
@@ -36,20 +38,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     //json 리턴값 저장할 변수
     private String result="";
 
-
-    //버튼변수생성
-    private Button armBtn;
-    private Button takeOffBtn;
-    private Button landBtn;
-    private Button lockBtn;
-    private Button mapTypeBtn;
-    private Button cadastralOffBtn;
-    private Button clearBtn;
-
-    //지도타입 버튼 변수
-    private Button basicMap;
-    private Button topoMap;
-    private Button satelliteMap;
+    //스피너 클릭했는지 체크하는 변수
+    private boolean lockCheck = false;
+    private boolean cadastralCheck = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,18 +48,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_main);
 
         //버튼변수생성
-        armBtn = (Button)findViewById(R.id.arm);
-        takeOffBtn = (Button) findViewById(R.id.takeOff);
-        landBtn = (Button)findViewById(R.id.land);
-        lockBtn = (Button)findViewById(R.id.lock);
-        mapTypeBtn = (Button)findViewById(R.id.mapType);
-        cadastralOffBtn = (Button) findViewById(R.id.cadastralOff);
-        clearBtn = (Button) findViewById(R.id.clear);
+        Button armBtn = (Button)findViewById(R.id.arm);
+        Button takeOffBtn = (Button) findViewById(R.id.takeOff);
+        Button landBtn = (Button)findViewById(R.id.land);
+        Button lockBtn = (Button)findViewById(R.id.lock);
+        Button mapTypeBtn = (Button)findViewById(R.id.mapType);
+        Button cadastralOffBtn = (Button) findViewById(R.id.cadastralOff);
+        Button clearBtn = (Button) findViewById(R.id.clear);
 
         //지도타입 버튼 변수
-        basicMap = (Button) findViewById(R.id.basicMap);
-        topoMap = (Button) findViewById(R.id.topoMap);
-        satelliteMap = (Button) findViewById(R.id.satelliteMap);
+        Button basicMap = (Button) findViewById(R.id.basicMap);
+        Button topoMap = (Button) findViewById(R.id.topoMap);
+        Button satelliteMap = (Button) findViewById(R.id.satelliteMap);
+
+        //LinearLayout 변수
+        TableLayout layout = (TableLayout) findViewById(R.id.mapTypeLayout);
 
         //지도
         FragmentManager fm = getSupportFragmentManager();
@@ -101,28 +95,75 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        /*앱 잠금 버튼 클릭 시 이벤트
+        앱 잠금 상태 :맵을 드래그하면 맵이 자동으로 기체의 위치가 가운데인 생태로 조정된다.
+        앱 잠금 해제 상태 : 맵을 드래그하면 맵이 이동된 상태로 그대로 유지가 됩니다.*/
+
         lockBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                if(lockCheck == false){
+                    Toast.makeText(getApplicationContext(), "앱 잠금", Toast.LENGTH_SHORT).show();
+                    lockCheck = true;
+                }else{
+                    Toast.makeText(getApplicationContext(), "앱 잠금 해제", Toast.LENGTH_SHORT).show();
+                    lockCheck = false;
+                }
             }
         });
 
+        //지도타입버튼 클릭시 지도유형 보이도록 이벤트
         mapTypeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                if(layout.getVisibility() == View.INVISIBLE){
+                    layout.setVisibility(View.VISIBLE);
+                }else{
+                    layout.setVisibility(View.INVISIBLE);
+                }
             }
         });
 
+        //지적도버튼 클릭 시 이벤트
         cadastralOffBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //지적도on 버튼을 누르면
+                if(cadastralCheck == false){
+                    Toast.makeText(getApplicationContext(), "지적도 off", Toast.LENGTH_SHORT).show();
+                    cadastralCheck = true;
+                }else{
+                    Toast.makeText(getApplicationContext(), "지적도 on", Toast.LENGTH_SHORT).show();
+                    cadastralCheck = false;
+                }
+            }
+        });
+
+        //초기화버튼 클릭 시 이벤트
+        clearBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //지도 초기화
+                Toast.makeText(getApplicationContext(), "초기화", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        //지도유형 버튼들
+        basicMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
             }
         });
 
-        clearBtn.setOnClickListener(new View.OnClickListener() {
+        topoMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        satelliteMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 

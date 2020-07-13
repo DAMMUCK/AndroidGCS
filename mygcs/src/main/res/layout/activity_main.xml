@@ -85,7 +85,8 @@
         android:layout_marginEnd="176dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:visibility="invisible">
+        android:visibility="invisible"
+        android:id = "@+id/mapTypeLayout">
 
         <Button
             android:id="@+id/basicMap"
@@ -116,7 +117,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:background="#ffffff">
+        android:background="#ffffff"
+        >
 
         <TextView
             android:id="@+id/voltage"
@@ -126,12 +128,27 @@
             android:textSize="17dp"/>
 
         <TextView
+            android:id="@+id/voltageValueTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0v"
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+        <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/flyMode"
         android:text="비행모드 : "
         android:textSize="17dp"
-        android:layout_marginStart="65dp"/>
+        android:layout_marginStart="25dp"/>
+
+        <TextView
+            android:id="@+id/flyModeValueTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+
 
         <TextView
             android:layout_width="wrap_content"
@@ -139,7 +156,15 @@
             android:id="@+id/speed"
             android:text="속도 : "
             android:textSize="17dp"
-            android:layout_marginStart="80dp"/>
+            android:layout_marginStart="85dp"/>
+
+        <TextView
+            android:id="@+id/speedValueTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0m/s"
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+
 
         <TextView
         android:layout_width="wrap_content"
@@ -147,7 +172,14 @@
         android:id="@+id/altitude"
         android:text="고도 : "
         android:textSize="17dp"
-        android:layout_marginStart="60dp"/>
+        android:layout_marginStart="45dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/altitudeValueTextView"
+            android:text="0m"
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -155,7 +187,7 @@
             android:id="@+id/yaw"
             android:text="YAW : "
             android:textSize="17dp"
-            android:layout_marginStart="60dp"/>
+            android:layout_marginStart="45dp"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -163,6 +195,6 @@
             android:id="@+id/satellite"
             android:text="위성 : "
             android:textSize="17dp"
-            android:layout_marginStart="60dp"/>
+            android:layout_marginStart="45dp"/>
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
