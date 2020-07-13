@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
         /*앱 잠금 버튼 클릭 시 이벤트
-        앱 잠금 상태 :맵을 드래그하면 맵이 자동으로 기체의 위치가 가운데인 생태로 조정된다.
+        앱 잠금 상태 :맵을 드래그하면 맵이 자동으로 기체의 위치가 가운데인 생태로 조정된다. -> 드론 gps 값으로 카메라 고정
         앱 잠금 해제 상태 : 맵을 드래그하면 맵이 이동된 상태로 그대로 유지가 됩니다.*/
 
         lockBtn.setOnClickListener(new View.OnClickListener() {
@@ -130,10 +130,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View view) {
                 //지적도on 버튼을 누르면
                 if(cadastralCheck == false){
-                    Toast.makeText(getApplicationContext(), "지적도 off", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "지적도 on", Toast.LENGTH_SHORT).show();
+                    myMap.setLayerGroupEnabled(myMap.LAYER_GROUP_CADASTRAL,true);
                     cadastralCheck = true;
                 }else{
-                    Toast.makeText(getApplicationContext(), "지적도 on", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "지적도 off", Toast.LENGTH_SHORT).show();
+                    myMap.setMapType(NaverMap.MapType.Navi);
                     cadastralCheck = false;
                 }
             }
