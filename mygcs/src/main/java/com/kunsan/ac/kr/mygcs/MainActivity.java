@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //스피너 클릭했는지 체크하는 변수
     private boolean lockCheck = false;
-    private boolean cadastralCheck = false;
+    private boolean cadastralCheck;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,18 +124,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        cadastralCheck=false;
         //지적도버튼 클릭 시 이벤트
         cadastralOffBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //지적도on 버튼을 누르면
+                //고쳐야함! 지적도 안바뀜!
+                
                 if(cadastralCheck == false){
+                    myMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_CADASTRAL,false);
                     Toast.makeText(getApplicationContext(), "지적도 on", Toast.LENGTH_SHORT).show();
-                    myMap.setLayerGroupEnabled(myMap.LAYER_GROUP_CADASTRAL,true);
                     cadastralCheck = true;
                 }else{
+                    myMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_CADASTRAL,true);
                     Toast.makeText(getApplicationContext(), "지적도 off", Toast.LENGTH_SHORT).show();
-                    myMap.setMapType(NaverMap.MapType.Navi);
                     cadastralCheck = false;
                 }
             }
