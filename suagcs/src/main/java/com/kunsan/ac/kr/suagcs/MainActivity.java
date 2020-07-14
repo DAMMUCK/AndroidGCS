@@ -1,4 +1,4 @@
-package com.kunsan.ac.kr.mygcs;
+package com.kunsan.ac.kr.suagcs;
 
 import android.graphics.PointF;
 import android.os.AsyncTask;
@@ -8,7 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.Toast;
 
@@ -39,8 +38,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String result="";
 
     //스피너 클릭했는지 체크하는 변수
-    private boolean lockCheck = false;
-    private boolean cadastralCheck;
+    private boolean lockCheck = true;
+    private boolean cadastralCheck = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //지도타입 버튼 변수
         Button basicMap = (Button) findViewById(R.id.basicMap);
-        Button topoMap = (Button) findViewById(R.id.topoMap);
+        Button terrainMap = (Button) findViewById(R.id.topoMap);
         Button satelliteMap = (Button) findViewById(R.id.satelliteMap);
 
         //LinearLayout 변수
@@ -102,12 +101,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         lockBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(lockCheck == false){
+                if(lockCheck){
                     Toast.makeText(getApplicationContext(), "앱 잠금", Toast.LENGTH_SHORT).show();
-                    lockCheck = true;
+                    lockCheck = false;
                 }else{
                     Toast.makeText(getApplicationContext(), "앱 잠금 해제", Toast.LENGTH_SHORT).show();
-                    lockCheck = false;
+                    lockCheck = true;
                 }
             }
         });
@@ -124,23 +123,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        cadastralCheck=false;
         //지적도버튼 클릭 시 이벤트
         cadastralOffBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //지적도on 버튼을 누르면
-                //고쳐야함! 지적도 안바뀜!
-                System.out.println("if문 들어가기 전 : "+cadastralCheck);
                 if(cadastralCheck){
                     myMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_CADASTRAL, true);
-                    Toast.makeText(getApplicationContext(), "지적도 off", Toast.LENGTH_SHORT).show();
-                    System.out.println("if문 들어왔을때 (true): "+cadastralCheck);
+                    Toast.makeText(getApplicationContext(), "지적도 on", Toast.LENGTH_SHORT).show();
                     cadastralCheck = false;
                 }else{
                     myMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_CADASTRAL, false);
-                    Toast.makeText(getApplicationContext(), "지적도 on", Toast.LENGTH_SHORT).show();
-                    System.out.println("if문 들어왔을때 (false): "+cadastralCheck);
+                    Toast.makeText(getApplicationContext(), "지적도 off", Toast.LENGTH_SHORT).show();
                     cadastralCheck = true;
                 }
             }
@@ -155,35 +148,29 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        boolean basicCheck = true;
-        boolean topoCheck = false;
-        boolean satelCheck = false;
+
         //지도유형 버튼들
         basicMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(basicCheck){
                     myMap.setMapType(NaverMap.MapType.Basic);
                     Toast.makeText(getApplicationContext(), "기본지도띄우기", Toast.LENGTH_SHORT).show();
-
-                }else{
-                    myMap.setMapType(NaverMap.MapType.Basic);
-                    Toast.makeText(getApplicationContext(), "기본지도띄우기", Toast.LENGTH_SHORT).show();
-                }
             }
         });
 
-        topoMap.setOnClickListener(new View.OnClickListener() {
+        terrainMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                    myMap.setMapType(NaverMap.MapType.Terrain);
+                    Toast.makeText(getApplicationContext(), "지형도띄우기", Toast.LENGTH_SHORT).show();
             }
         });
 
         satelliteMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                    myMap.setMapType(NaverMap.MapType.Satellite);
+                    Toast.makeText(getApplicationContext(), "위성지도 띄우기", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -191,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(@NonNull NaverMap naverMap) {
         this.myMap = naverMap;
-        myMap.setMapType(NaverMap.MapType.Navi);
+        myMap.setMapType(NaverMap.MapType.Basic);
         CameraUpdate cameraUpdate = CameraUpdate.scrollTo(new LatLng(35.9452863, 126.6799643));
         naverMap.moveCamera(cameraUpdate);
         Toast.makeText(this.getApplicationContext(), "지도띄우기", Toast.LENGTH_SHORT).show();
