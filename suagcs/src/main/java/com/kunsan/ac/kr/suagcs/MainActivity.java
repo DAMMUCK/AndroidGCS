@@ -19,6 +19,10 @@ import com.naver.maps.map.OnMapReadyCallback;
 import com.naver.maps.map.overlay.InfoWindow;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.Overlay;
+import com.o3dr.android.client.interfaces.DroneListener;
+import com.o3dr.android.client.interfaces.LinkListener;
+import com.o3dr.android.client.interfaces.TowerListener;
+import com.o3dr.services.android.lib.gcs.link.LinkConnectionStatus;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -27,12 +31,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, DroneListener, TowerListener, LinkListener {
     //네이버 맵
     NaverMap myMap;
-
-    //지오코드 객체 선언
-    String defaultURL = "https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc";
 
     //json 리턴값 저장할 변수
     private String result="";
@@ -71,7 +72,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             fm.beginTransaction().add(R.id.map, mapFragment).commit();
         }
 
+        //지도띄우기
         mapFragment.getMapAsync(this);
+
+        //************************************************************
+        // 버튼 클릭 이벤트
 
         armBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             }
         });
+
 
         takeOffBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -175,6 +181,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
+    //***********************************************************
+
+    //지도 생성시 초기화
     @Override
     public void onMapReady(@NonNull NaverMap naverMap) {
         this.myMap = naverMap;
@@ -238,6 +247,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         };
 
 
+        //마커 클릭시 정보창 뜨게하기
         marker1.setOnClickListener(listener);
         marker2.setOnClickListener(listener);
         marker3.setOnClickListener(listener);
@@ -275,6 +285,31 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });*/
 
+
+    }
+
+    @Override
+    public void onDroneEvent(String event, Bundle extras) {
+
+    }
+
+    @Override
+    public void onDroneServiceInterrupted(String errorMsg) {
+
+    }
+
+    @Override
+    public void onLinkStateUpdated(@NonNull LinkConnectionStatus connectionStatus) {
+
+    }
+
+    @Override
+    public void onTowerConnected() {
+
+    }
+
+    @Override
+    public void onTowerDisconnected() {
 
     }
 
