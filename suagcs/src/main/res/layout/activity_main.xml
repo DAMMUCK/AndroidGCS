@@ -153,7 +153,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="264dp"
-        android:text="앱 잡금"
+        android:text="맵 잡금"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/map" />
 
@@ -265,7 +265,7 @@
             android:textSize="17dp" />
 
         <TextView
-            android:id="@+id/speedValueTextView"
+            android:id="@+id/speedValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0m/s"
@@ -283,7 +283,7 @@
             android:textSize="17dp" />
 
         <TextView
-            android:id="@+id/altitudeValueTextView"
+            android:id="@+id/altitudeValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0m"
