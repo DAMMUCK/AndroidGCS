@@ -149,6 +149,16 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
+        android:id="@+id/connectBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="92dp"
+        android:layout_marginBottom="4dp"
+        android:text="Connect"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
         android:id="@+id/lock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -229,28 +239,28 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="전압 : "
-            android:textSize="14dp" />
+            android:textSize="12dp" />
 
         <TextView
             android:id="@+id/voltageValueTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0v"
-            android:textSize="14dp"
+            android:text=""
+            android:textSize="12dp"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
             android:id="@+id/flyMode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
+            android:layout_marginStart="15dp"
             android:text="비행모드 : "
-            android:textSize="14dp" />
+            android:textSize="12dp" />
 
 
         <Spinner
             android:id="@+id/modeSelect"
-            android:layout_width="160dp"
+            android:layout_width="140dp"
             android:layout_height="wrap_content"
             android:layout_column="1"
             android:layout_toLeftOf="@+id/flyMode"
@@ -263,14 +273,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="속도 : "
-            android:textSize="14dp" />
+            android:textSize="12dp" />
 
         <TextView
             android:id="@+id/speedValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0m/s"
-            android:textSize="14dp"
+            android:textSize="12dp"
             android:textAlignment="center"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -279,43 +288,42 @@
             android:id="@+id/altitude"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
+            android:layout_marginStart="10dp"
             android:text="고도 : "
             android:textAlignment="center"
-            android:textSize="14dp" />
+            android:textSize="12dp" />
 
         <TextView
             android:id="@+id/altitudeValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0m"
             android:textAlignment="center"
-            android:textSize="14dp"
+            android:textSize="12dp"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
             android:id="@+id/yaw"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
+            android:layout_marginStart="10dp"
             android:text="YAW : "
             android:textAlignment="center"
-            android:textSize="14dp" />
+            android:textSize="12dp" />
 
         <TextView
             android:id="@+id/yawValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAlignment="center"
-            android:textSize="14dp" />
+            android:textSize="12dp" />
 
         <TextView
             android:id="@+id/satellite"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
+            android:layout_marginStart="10dp"
             android:text="위성 : "
-            android:textSize="14dp" />
+            android:textSize="12dp" />
 
 
         <TextView
@@ -323,7 +331,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAlignment="center"
-            android:textSize="14dp" />
+            android:textSize="12dp" />
 
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
