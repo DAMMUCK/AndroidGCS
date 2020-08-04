@@ -14,6 +14,130 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <LinearLayout
+        android:id="@+id/list_view"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_marginStart="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/info_linearLayout">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler"
+                android:layout_width="300dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/recycler_background"
+                android:scrollbars="vertical" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/basicModeButtons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/list_view"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/flightModeBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/mybutton_takeoff_altitude"
+            android:text="일반모드" />
+
+        <LinearLayout
+            android:layout_width="600dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/flightModeState"
+            android:orientation="horizontal"
+            android:visibility="invisible">
+
+            <Button
+                android:id="@+id/FlyMode_Basic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#CCCC99"
+                android:text="일반모드" />
+
+
+            <Button
+                android:id="@+id/FlyMode_Path"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#CCCC99"
+                android:text="Path모드" />
+
+            <Button
+                android:id="@+id/FlyMode_Gap"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#CCCC99"
+                android:text="Gap모드" />
+
+            <Button
+                android:id="@+id/FlyMode_Area"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#CCCC99"
+                android:text="Area모드" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/altitudeBtns"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/basicModeButtons"
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="5dp">
+
+        <Button
+            android:id="@+id/takeOffAltitudeBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:background="#CCCC99"
+            android:text="이륙고도" />
+
+        <LinearLayout
+            android:id="@+id/altitudeState"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:visibility="invisible">
+
+            <Button
+                android:id="@+id/altitudeDown"
+                android:layout_width="wrap_content"
+                android:layout_height="45dp"
+                android:layout_weight="1"
+                android:background="#CCCC99"
+                android:text="Down" />
+
+            <Button
+                android:id="@+id/altitudeUp"
+                android:layout_width="wrap_content"
+                android:layout_height="45dp"
+                android:layout_weight="1"
+                android:background="#CCCC99"
+                android:text="Up" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
     <Button
         android:id="@+id/arm"
         android:layout_width="wrap_content"
@@ -25,22 +149,12 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/takeOff"
+        android:id="@+id/connectBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="92dp"
         android:layout_marginBottom="4dp"
-        android:text="TAKE-OFF"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/land"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="180dp"
-        android:layout_marginBottom="4dp"
-        android:text="land"
+        android:text="Connect"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -49,7 +163,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="264dp"
-        android:text="앱 잡금"
+        android:text="맵 잡금"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/map" />
 
@@ -112,89 +226,112 @@
     </TableLayout>
 
     <LinearLayout
+        android:id="@+id/info_linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#ffffff"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:background="#ffffff"
-        >
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/voltage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="전압 : "
-            android:textSize="17dp"/>
+            android:textSize="12dp" />
 
         <TextView
             android:id="@+id/voltageValueTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0v"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/flyMode"
-            android:text="비행모드 : "
-            android:textSize="17dp"
-            android:layout_marginStart="25dp"/>
-
-        <TextView
-            android:id="@+id/flyModeValueTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text=""
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
+            android:textSize="12dp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/flyMode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:text="비행모드 : "
+            android:textSize="12dp" />
+
+
+        <Spinner
+            android:id="@+id/modeSelect"
+            android:layout_width="140dp"
+            android:layout_height="wrap_content"
+            android:layout_column="1"
+            android:layout_toLeftOf="@+id/flyMode"
+            android:spinnerMode="dropdown"
+            android:textAlignment="center" />
 
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:id="@+id/speed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="속도 : "
-            android:textSize="17dp"
-            android:layout_marginStart="85dp"/>
+            android:textSize="12dp" />
 
         <TextView
-            android:id="@+id/speedValueTextView"
+            android:id="@+id/speedValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0m/s"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
+            android:textSize="12dp"
+            android:textAlignment="center"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:id="@+id/altitude"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:text="고도 : "
-            android:textSize="17dp"
-            android:layout_marginStart="45dp"/>
+            android:textAlignment="center"
+            android:textSize="12dp" />
 
         <TextView
+            android:id="@+id/altitudeValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/altitudeValueTextView"
-            android:text="0m"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
+            android:textAlignment="center"
+            android:textSize="12dp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:id="@+id/yaw"
-            android:text="YAW : "
-            android:textSize="17dp"
-            android:layout_marginStart="45dp"/>
-
-        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="YAW : "
+            android:textAlignment="center"
+            android:textSize="12dp" />
+
+        <TextView
+            android:id="@+id/yawValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="12dp" />
+
+        <TextView
             android:id="@+id/satellite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:text="위성 : "
-            android:textSize="17dp"
-            android:layout_marginStart="45dp"/>
+            android:textSize="12dp" />
+
+
+        <TextView
+            android:id="@+id/satelliteValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="12dp" />
+
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
