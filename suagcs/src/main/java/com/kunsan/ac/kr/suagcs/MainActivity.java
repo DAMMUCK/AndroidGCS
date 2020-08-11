@@ -786,43 +786,78 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             dialog.cancel();
                         }
                     });
+            arm_builder.show();
         }
     }
 
     //land
     private void landButton(){
-        VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_LAND, new SimpleCommandListener() {
-            @Override
-            public void onError(int executionError) {
-                alertUser("Unable to land the vehicle.");
-            }
+        AlertDialog.Builder land_builder = new AlertDialog.Builder(this);
+        land_builder.setTitle("시동 확인 대화상자")
+                .setMessage("모터를 가동합니다.\n모터가 고속으로 회전합니다.")
+                .setCancelable(false)
+                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //land클릭시
+                        VehicleApi.getApi(drone).setVehicleMode(VehicleMode.COPTER_LAND, new SimpleCommandListener() {
+                            @Override
+                            public void onError(int executionError) {
+                                alertUser("Unable to land the vehicle.");
+                            }
 
-            @Override
-            public void onTimeout() {
-                alertUser("Unable to land the vehicle.");
-            }
-        });
+                            @Override
+                            public void onTimeout() {
+                                alertUser("Unable to land the vehicle.");
+                            }
+                        });
+                    }
+                })
+                .setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+        land_builder.show();
     }
 
     //takeoff
     private void takeOffButton(){
-        ControlApi.getApi(this.drone).takeoff(10, new AbstractCommandListener() {
+        AlertDialog.Builder takeOff_builder = new AlertDialog.Builder(this);
+        takeOff_builder.setTitle("시동 확인 대화상자")
+                .setMessage("모터를 가동합니다.\n모터가 고속으로 회전합니다.")
+                .setCancelable(false)
+                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //takeoff클릭시
+                        ControlApi.getApi(drone).takeoff(10, new AbstractCommandListener() {
 
-            @Override
-            public void onSuccess() {
-                alertUser("Taking off...");
-            }
+                            @Override
+                            public void onSuccess() {
+                                alertUser("Taking off...");
+                            }
 
-            @Override
-            public void onError(int i) {
-                alertUser("Unable to take off.");
-            }
+                            @Override
+                            public void onError(int i) {
+                                alertUser("Unable to take off.");
+                            }
 
-            @Override
-            public void onTimeout() {
-                alertUser("Unable to take off.");
-            }
-        });
+                            @Override
+                            public void onTimeout() {
+                                alertUser("Unable to take off.");
+                            }
+                        });
+                    }
+                })
+                .setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+        takeOff_builder.show();
     }
 
     //이륙고도 up
