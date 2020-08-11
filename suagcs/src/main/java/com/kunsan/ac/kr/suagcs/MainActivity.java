@@ -1,12 +1,13 @@
 package com.kunsan.ac.kr.suagcs;
-
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.PointF;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.service.controls.Control;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
@@ -21,6 +22,7 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -59,6 +61,7 @@ import com.o3dr.services.android.lib.drone.property.Altitude;
 import com.o3dr.services.android.lib.drone.property.Attitude;
 import com.o3dr.services.android.lib.drone.property.Battery;
 import com.o3dr.services.android.lib.drone.property.Gps;
+import com.o3dr.services.android.lib.drone.property.GuidedState;
 import com.o3dr.services.android.lib.drone.property.Home;
 import com.o3dr.services.android.lib.drone.property.Speed;
 import com.o3dr.services.android.lib.drone.property.State;
@@ -82,59 +85,77 @@ import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, DroneListener, TowerListener, LinkListener {
-  private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = MainActivity.class.getSimpleName();
 
-  private static final int LOCATION_PERMISSION_REQUEST_CODE = 1000;
-  private FusedLocationSource locationSource;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1000;
+    private FusedLocationSource locationSource;
 
-  MapFragment mNaverMapFragment = null;
+    MapFragment mNaverMapFragment = null;
 
-  private Drone drone;
+    private Drone drone;
 
-   //네이버 맵
-   NaverMap myMap;
+    //네이버 맵
+    NaverMap myMap;
 
-   private int droneType = Type.TYPE_UNKNOWN;
-   private ControlTower controlTower;
+    private int droneType = Type.TYPE_UNKNOWN;
+    private ControlTower controlTower;
 
-   private Spinner modeSelector;
+    private Spinner modeSelector;
 
-   private int Marker_Count = 0;
-   private int Recycler_Count = 0;
-   private int takeOffAltitude = 3;
-   private int Auto_Marker_Count = 0;
-   public int Auto_Distance = 50;
-   public int Gap_Distance = 5;
-   private int Gap_Top = 0;
-   private int Guided_Count = 0;
+    private int Marker_Count = 0;
+    private int Recycler_Count = 0;
+    private int takeOffAltitude = 3;
+    private int Auto_Marker_Count = 0;
+    public int Auto_Distance = 50;
+    public int Gap_Distance = 5;
+    private int Gap_Top = 0;
+    private int Guided_Count = 0;
 
-   protected double mRecentAltitude = 0;
+    protected double mRecentAltitude = 0;
 
-   public int Reached_Count = 0;
+    public int Reached_Count = 0;
 
-   private final Handler handler = new Handler();
+    private final Handler handler = new Handler();
     //json 리턴값 저장할 변수
-   private String result="";
+    private String result="";
 
     //스피너 클릭했는지 체크하는 변수
-   private boolean lockCheck = true;
-   private boolean cadastralCheck = true;
+    private boolean lockCheck = true;
+    private boolean cadastralCheck = true;
+
+    //버튼들 정의
+    Button armBtn, lockBtn, mapTypeBtn, cadastralOffBtn, clearBtn, connectBtn;
+    Button basicMap, terrainMap, satelliteMap;
+
+    //이륙고도 버튼
+    Button takeOffAltitudeBtn;
+
+    // up/down버튼
+    Button altitudeUpBtn;
+    Button altitudeDownBtn;
+
+    //layout 변수
+    TableLayout layout;
+    LinearLayout altitudeLayout;
 
     @Override
-   protected void onCreate(Bundle savedInstanceState) {//맵 실행 되기 전
-       Log.i(TAG, "Start mainActivity");
-       super.onCreate(savedInstanceState);
-       // 소프트바 없애기
-       deleteStatusBar();
-       // 상태바 없애기
-       getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    protected void onCreate(Bundle savedInstanceState) {//맵 실행 되기 전
+        Log.i(TAG, "Start mainActivity");
+        super.onCreate(savedInstanceState);
+        // 소프트바 없애기
+        deleteStatusBar();
+        // 상태바 없애기
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        setContentView(R.layout.activity_main);
 
-       setContentView(R.layout.activity_main);
-       this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
 
-       final Context context = getApplicationContext();
-       this.controlTower = new ControlTower(context);
-       this.drone = new Drone(context);
+        final Context context = getApplicationContext();
+        this.controlTower = new ControlTower(context);
+        this.drone = new Drone(context);
+
+        // UI상 버튼 제어
+        initButtons();
 
 
         //지도띄우기
@@ -150,8 +171,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.modeSelector.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                ((TextView) parent.getChildAt(0)).setTextColor(Color.BLACK);
-                //((TextView) parent.getChildAt(0)).setText("");
                 onFlightModeSelected(view);
             }
 
@@ -165,7 +184,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         locationSource = new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
 
         mapFragment.getMapAsync(this);
-
 
     }
 
@@ -188,10 +206,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(@NonNull NaverMap naverMap) {
         this.myMap = naverMap;
 
-        // 켜지자마자 드론 연결
-        /*ConnectionParameter params = ConnectionParameter.newUdpConnection(null);
-        this.drone.connect(params);*/
-
         // 네이버 로고 위치 변경
         UiSettings uiSettings = naverMap.getUiSettings();
         uiSettings.setLogoMargin(2080, 0, 0, 925);
@@ -212,109 +226,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         uiSettings.setScrollGesturesEnabled(false);
 
         Log.e("mylog","컨트롤 버튼 들어가기전");
-        // UI상 버튼 제어
-        ControlButton();
-
-
-      /*  myMap.setMapType(NaverMap.MapType.Basic);
-        CameraUpdate cameraUpdate = CameraUpdate.scrollTo(new LatLng(35.9452863, 126.6799643));
-        naverMap.moveCamera(cameraUpdate);
-        Toast.makeText(this.getApplicationContext(), "지도띄우기", Toast.LENGTH_SHORT).show();
-
-        //마커띄우기
-        Marker marker1 = new Marker();
-        marker1.setPosition(new LatLng(35.9452863, 126.6799643));
-        marker1.setMap(naverMap);
-        Marker marker2 = new Marker();
-        marker2.setPosition(new LatLng(35.9408996, 126.6864375));
-        marker2.setMap(naverMap);
-        Marker marker3 = new Marker();
-        marker3.setPosition(new LatLng(35.9417, 126.6895613));
-        marker3.setMap(naverMap);
-
-
-        //지도 클릭시 이벤트
-        myMap.setOnMapClickListener(new NaverMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(@NonNull PointF pointF, @NonNull LatLng latLng) {
-                AsyncTaskThread async = new AsyncTaskThread();
-                try{
-                    result = async.execute(latLng).get();
-                    System.out.println(result);
-                    System.out.println(latLng);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        //정보창
-        InfoWindow infoWindow = new InfoWindow();
-        infoWindow.setAdapter(new InfoWindow.DefaultTextAdapter(this) {
-            @NonNull
-            @Override
-            public CharSequence getText(@NonNull InfoWindow infoWindow) {
-                return "정보 창";
-            }
-        });
-
-
-        //마커클릭시 이벤트
-        Overlay.OnClickListener listener = overlay -> {
-            Marker mark = (Marker) overlay;
-
-            if (mark.getInfoWindow() == null) {
-                // 현재 마커에 정보 창이 열려있지 않을 경우 엶
-                infoWindow.open(mark);
-            } else {
-                // 이미 현재 마커에 정보 창이 열려있을 경우 닫음
-                infoWindow.close();
-            }
-
-            return true;
-        };
-
-
-        //마커 클릭시 정보창 뜨게하기
-        marker1.setOnClickListener(listener);
-        marker2.setOnClickListener(listener);
-        marker3.setOnClickListener(listener);
-
-*/
-
-        //구글 geocoder
-        /*Geocoder geocoder = new Geocoder(this);
-        myMap.setOnMapClickListener(new NaverMap.OnMapClickListener() {//지도 클릭시
-            @Override
-            public void onMapClick(@NonNull PointF pointF, @NonNull LatLng latLng) {
-                //지도를 클릭시 클릭한 부분의 위도와 경도를 Toast로 출력
-                String text = "latitude = " + latLng.latitude + " longitude = " + latLng.longitude;
-                Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
-
-
-                //구글 geocoder 사용
-                List<Address> list = null;
-                try {
-                    list = geocoder.getFromLocation(
-                            latLng.latitude,
-                            latLng.longitude,
-                            10);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Log.e("test", "입출력 오류 - 서버에서 주소변환시 에러 발생");
-                }
-                if (list != null) {
-                    if (list.size() == 0) {
-                        Toast.makeText(getApplicationContext(), "해당되는 주소정보는 없습니다", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(getApplicationContext(), list.get(0).getPostalCode(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-        });*/
-
-
     }
 
     private void deleteStatusBar() {
@@ -357,14 +268,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onDroneEvent(String event, Bundle extras) {
         switch (event) {
             case AttributeEvent.STATE_CONNECTED:
-                alertUser("Drone Connected");
+                alertUser("드론 연결됨");
                 updateConnectedButton(this.drone.isConnected());
                 updateArmButton();
                 checkSoloState();
                 break;
 
             case AttributeEvent.STATE_DISCONNECTED:
-                alertUser("Drone Disconnected");
+                alertUser("드론 연결해제됨");
                 updateConnectedButton(this.drone.isConnected());
                 updateArmButton();
                 break;
@@ -650,41 +561,32 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     //############################# 버튼 컨트롤 ##############################
-    public void ControlButton(){
+    private void initButtons(){
         Log.e("mylog","컨트롤 버튼 들어갔다");
         //기본 ui 4개 버튼
-        final Button armBtn = (Button)findViewById(R.id.arm);
-        final Button lockBtn = (Button)findViewById(R.id.lock);
-        final Button mapTypeBtn = (Button)findViewById(R.id.mapType);
-        final Button cadastralOffBtn = (Button) findViewById(R.id.cadastralOff);
-        final Button clearBtn = (Button) findViewById(R.id.clear);
-        final Button connectBtn = (Button) findViewById(R.id.connectBtn);
+        armBtn = (Button)findViewById(R.id.arm);
+        lockBtn = (Button)findViewById(R.id.lock);
+        mapTypeBtn = (Button)findViewById(R.id.mapType);
+        cadastralOffBtn = (Button) findViewById(R.id.cadastralOff);
+        clearBtn = (Button) findViewById(R.id.clear);
+        connectBtn = (Button) findViewById(R.id.connectBtn);
 
         //지도타입 버튼 변수
-        final Button basicMap = (Button) findViewById(R.id.basicMap);
-        final Button terrainMap = (Button) findViewById(R.id.topoMap);
-        final Button satelliteMap = (Button) findViewById(R.id.satelliteMap);
+        basicMap = (Button) findViewById(R.id.basicMap);
+        terrainMap = (Button) findViewById(R.id.topoMap);
+        satelliteMap = (Button) findViewById(R.id.satelliteMap);
 
         //이륙고도 버튼
-        final Button takeOffAltitudeBtn = (Button) findViewById(R.id.takeOffAltitudeBtn);
+        takeOffAltitudeBtn = (Button) findViewById(R.id.takeOffAltitudeBtn);
         // up/down버튼
-        final Button altitudeUpBtn = (Button) findViewById(R.id.altitudeUp);
-        final Button altitudeDownBtn = (Button) findViewById(R.id.altitudeDown);
-
-        //비행모드 버튼
-        final Button flightModeBtn = (Button) findViewById(R.id.flightModeBtn);
-
-        final Button flightMode_Basic = (Button)findViewById(R.id.FlyMode_Basic);
-        final Button flightMode_Path = (Button) findViewById(R.id.FlyMode_Path);
-        final Button flightMode_Gap = (Button) findViewById(R.id.FlyMode_Gap);
-        final Button flightMode_Area = (Button) findViewById(R.id.FlyMode_Area);
-
-        final UiSettings uiSettings = myMap.getUiSettings();
+        altitudeUpBtn = (Button) findViewById(R.id.altitudeUp);
+        altitudeDownBtn = (Button) findViewById(R.id.altitudeDown);
 
         //*************************** 기본 ui 버튼 제어
 
         //LinearLayout 변수
-        TableLayout layout = (TableLayout) findViewById(R.id.mapTypeLayout);
+        layout = (TableLayout) findViewById(R.id.mapTypeLayout);
+        altitudeLayout = (LinearLayout) findViewById(R.id.altitudeState);
 
         /*앱 잠금 버튼 클릭 시 이벤트
         앱 잠금 상태 :맵을 드래그하면 맵이 자동으로 기체의 위치가 가운데인 생태로 조정된다. -> 드론 gps 값으로 카메라 고정
@@ -711,6 +613,33 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }else{
                     layout.setVisibility(View.INVISIBLE);
                 }
+            }
+        });
+
+        takeOffAltitudeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(altitudeLayout.getVisibility() == View.INVISIBLE){
+                    altitudeLayout.setVisibility(View.VISIBLE);
+                }else{
+                    altitudeLayout.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
+        altitudeUpBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setAltitudeUp();
+                updateAltitude();
+            }
+        });
+
+        altitudeDownBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setAltitudeDown();
+                updateAltitude();
             }
         });
 
@@ -768,7 +697,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         connectBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-              connectButton();
+                connectButton();
             }
         });
 
@@ -776,11 +705,36 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View view) {
                 armButton();
+                //arm 알림창
             }
         });
     }
 
-    private void connectButton(){
+    //*************************** 버튼 컨트롤에 쓰이는 함수 ***********************************
+
+    //arm알림창
+    private void checkArmAlert(){
+        AlertDialog.Builder arm_builder = new AlertDialog.Builder(this);
+        arm_builder.setTitle("시동 확인 대화상자")
+                .setMessage("모터를 가동합니다.\n모터가 고속으로 회전합니다.")
+                .setCancelable(false)
+                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //확인 클릭시
+
+                    }
+                })
+                .setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+    }
+
+
+    private void connectButton(){//연결버튼
         if(this.drone.isConnected()){
             Log.e("mylog","버튼 들어갔는데 여기는 isConnected");
             this.drone.disconnect();
@@ -791,99 +745,99 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    private void armButton(){
+    private void armButton(){//arm버튼
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
 
         if (vehicleState.isFlying()) {
             // Land
-            VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_LAND, new SimpleCommandListener() {
-                @Override
-                public void onError(int executionError) {
-                    alertUser("Unable to land the vehicle.");
-                }
-
-                @Override
-                public void onTimeout() {
-                    alertUser("Unable to land the vehicle.");
-                }
-            });
+            landButton();
         } else if (vehicleState.isArmed()) {
             // Take off
-            ControlApi.getApi(this.drone).takeoff(10, new AbstractCommandListener() {
-
-                @Override
-                public void onSuccess() {
-                    alertUser("Taking off...");
-                }
-
-                @Override
-                public void onError(int i) {
-                    alertUser("Unable to take off.");
-                }
-
-                @Override
-                public void onTimeout() {
-                    alertUser("Unable to take off.");
-                }
-            });
+            takeOffButton();
         } else if (!vehicleState.isConnected()) {
             // Connect
             alertUser("Connect to a drone first");
         } else {
             // Connected but not Armed
-            VehicleApi.getApi(this.drone).arm(true, false, new SimpleCommandListener() {
-                @Override
-                public void onError(int executionError) {
-                    alertUser("Unable to arm vehicle.");
-                }
+            AlertDialog.Builder arm_builder = new AlertDialog.Builder(this);
+            arm_builder.setTitle("시동 확인 대화상자")
+                    .setMessage("모터를 가동합니다.\n모터가 고속으로 회전합니다.")
+                    .setCancelable(false)
+                    .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            //확인 클릭시
+                            VehicleApi.getApi(drone).arm(true, false, new SimpleCommandListener() {
+                                @Override
+                                public void onError(int executionError) {
+                                    alertUser("Unable to arm vehicle.");
+                                }
 
-                @Override
-                public void onTimeout() {
-                    alertUser("Arming operation timed out.");
-                }
-            });
+                                @Override
+                                public void onTimeout() {
+                                    alertUser("Arming operation timed out.");
+                                }
+                            });
+                        }
+                    })
+                    .setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
         }
     }
 
+    //land
+    private void landButton(){
+        VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_LAND, new SimpleCommandListener() {
+            @Override
+            public void onError(int executionError) {
+                alertUser("Unable to land the vehicle.");
+            }
+
+            @Override
+            public void onTimeout() {
+                alertUser("Unable to land the vehicle.");
+            }
+        });
+    }
+
+    //takeoff
+    private void takeOffButton(){
+        ControlApi.getApi(this.drone).takeoff(10, new AbstractCommandListener() {
+
+            @Override
+            public void onSuccess() {
+                alertUser("Taking off...");
+            }
+
+            @Override
+            public void onError(int i) {
+                alertUser("Unable to take off.");
+            }
+
+            @Override
+            public void onTimeout() {
+                alertUser("Unable to take off.");
+            }
+        });
+    }
+
+    //이륙고도 up
+    private void setAltitudeUp(){
+        int altitude = getTakeOffAltitude();
+        setTakeOffAltitude(++altitude);
+    }
+
+    //이륙고도 down
+    private void setAltitudeDown(){
+        int altitude = getTakeOffAltitude();
+        setTakeOffAltitude(--altitude);
+    }
+
     // ************************ 비행 모드 변경 ******************************
-
-    private void ChangeToLoiterMode() {
-        VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_LOITER, new SimpleCommandListener() {
-            @Override
-            public void onSuccess() {
-                alertUser("Loiter 모드로 변경 중...");
-            }
-
-            @Override
-            public void onError(int executionError) {
-                alertUser("Loiter 모드 변경 실패 : " + executionError);
-            }
-
-            @Override
-            public void onTimeout() {
-                alertUser("Loiter 모드 변경 실패");
-            }
-        });
-    }
-
-    private void ChangeToAutoMode() {
-        VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_AUTO, new SimpleCommandListener() {
-            @Override
-            public void onSuccess() {
-                alertUser("Auto 모드로 변경 중...");
-            }
-
-            @Override
-            public void onError(int executionError) {
-                alertUser("Auto 모드 변경 실패 : " + executionError);
-            }
-
-            @Override
-            public void onTimeout() {
-                alertUser("Auto 모드 변경 실패.");
-            }
-        });
-    }
 
     private void ChangeToGuidedMode() {
         VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_GUIDED, new SimpleCommandListener() {
@@ -919,7 +873,57 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.modeSelector.setSelection(arrayAdapter.getPosition(vehicleMode));
     }
 
-
+    //********************************* 가이드 모드 *******************************************
+//
+//    private class GuideMode{
+//        private LatLng mGuidedPoint;    //가이드 목적지 저장
+//        private Marker mMarkerGuide = new Marker();
+//        private OverlayImage guideIcon = OverlayImage.fromResource(R.drawable.marker_guide);
+//
+//
+//        private void DialogSimple(final Drone dronem ,final LatLong point){
+//            AlertDialog.Builder alt_bld = new AlertDialog.Builder(MainActivity.this);
+//            alt_bld.setMessage("확인하시면 가이드모드로 전환후 기체가 이동합니다.")
+//                    .setCancelable(false).setPositiveButton("확인",
+//                    new DialogInterface.OnClickListener(){
+//                        public void onClick(DialogInterface dialog, int id){
+//                            VehicleApi.getApi(drone).setVehicleMode(VehicleMode.COPTER_GUIDED,
+//                                    new AbstractCommandListener() {
+//                                        @Override
+//                                        public void onSuccess() {
+//                                            ControlApi.getApi(drone).goTo(point, true, null);
+//                                        }
+//
+//                                        @Override
+//                                        public void onError(int executionError) {
+//
+//                                        }
+//
+//                                        @Override
+//                                        public void onTimeout() {
+//
+//                                        }
+//                                    });
+//                        }
+//                    }).setNegativeButton("취소",
+//                    new DialogInterface.OnClickListener(){
+//                        public void onClick(DialogInterface dialog, int id){
+//                            dialog.cancel();
+//                        }
+//                    });
+//            AlertDialog alert = alt_bld.create();
+//            alert.setTitle("Title");
+//            alert.setIcon(R.drawable.drone);
+//            alert.show();
+//        }
+//
+//        public boolean CheckGoal(final Drone drone, LatLng recentLatLng){
+//            GuidedState guidedState = drone.getAttribute(AttributeType.GUIDED_STATE);
+//            LatLng target = new LatLng(guidedState.getCoordinate().getLatitude(),
+//                    guidedState.getCoordinate().getLongitude());
+//            return target.distanceTo(recentLatLng) <= 1;
+//        }
+//    }
 
     //*********************************************************************************
     //asyncTask 스레드 사용해서 json받아오기기
@@ -1003,9 +1007,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         return strNum;
     }*/
 
-   //***************************알림창*********************************
-   protected void alertUser(String message) {
-       Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-       Log.d(TAG, message);
-   }
+    //***************************알림창*********************************
+    protected void alertUser(String message) {
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+        Log.d(TAG, message);
+    }
 }
