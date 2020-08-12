@@ -154,10 +154,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.controlTower = new ControlTower(context);
         this.drone = new Drone(context);
 
-        // UI상 버튼 제어
-        initButtons();
-
-
         //지도띄우기
         FragmentManager fm = getSupportFragmentManager();
         MapFragment mapFragment = (MapFragment) fm.findFragmentById(R.id.map);
@@ -226,8 +222,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         uiSettings.setScrollGesturesEnabled(false);
 
         Log.e("mylog","컨트롤 버튼 들어가기전");
+        // UI상 버튼 제어
+        initButtons();
+
+        //지도를 롱클릿 했을때 가이드 모드로 변경
+        myMap.setOnMapLongClickListener(new NaverMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(@NonNull PointF pointF, @NonNull LatLng latLng) {
+                Log.e("my_log","롱클릭 시 함수 들어왔당");
+                GuideMode guideMode = new GuideMode(latLng);
+                LatLong latlong = new LatLong(latLng.latitude,latLng.longitude);
+                guideMode.DialogSimple(drone,latlong);
+
+                //기체가 목적지에 도달하면 마커삭제하고 로이터 모드로 변환
+                if( guideMode.CheckGoal(drone,latLng) == false ){
+                    guideMode.mMarkerGuide.setMap(null);
+                    changeToLoiter();
+                }
+            }
+        });
+
+
     }
 
+    //상태바 제거
     private void deleteStatusBar() {
         getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -237,6 +255,28 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         | View.SYSTEM_UI_FLAG_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_IMMERSIVE
         );
+    }
+
+    //==================================================
+    //로이터 모드로 변환
+    private void changeToLoiter(){
+        VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_LOITER,new SimpleCommandListener(){
+            @Override
+            public void onSuccess(){
+                alertUser("로이터 모드로 변경 성공");
+            }
+
+            @Override
+            public void onError(int executionError){
+                alertUser("로이터 모드 변경 실패 : " + executionError);
+            }
+
+            @Override
+            public void onTimeout(){
+                alertUser("로이터 모드 변경 실패");
+            }
+        });
+
     }
 
     @Override
@@ -364,7 +404,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         VehicleApi.getApi(this.drone).setVehicleMode(vehicleMode, new AbstractCommandListener() {
             @Override
             public void onSuccess() {
-                alertUser("Vehicle mode change successful.");
+                alertUser(vehicleMode+" change successful.");
             }
 
             @Override
@@ -378,61 +418,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
     }
-
-    public void onArmButtonTap(View view) {
-        State vehicleState = this.drone.getAttribute(AttributeType.STATE);
-
-        if (vehicleState.isFlying()) {
-            // Land
-            VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_LAND, new SimpleCommandListener() {
-                @Override
-                public void onError(int executionError) {
-                    alertUser("Unable to land the vehicle.");
-                }
-
-                @Override
-                public void onTimeout() {
-                    alertUser("Unable to land the vehicle.");
-                }
-            });
-        } else if (vehicleState.isArmed()) {
-            // Take off
-            ControlApi.getApi(this.drone).takeoff(10, new AbstractCommandListener() {
-
-                @Override
-                public void onSuccess() {
-                    alertUser("Taking off...");
-                }
-
-                @Override
-                public void onError(int i) {
-                    alertUser("Unable to take off.");
-                }
-
-                @Override
-                public void onTimeout() {
-                    alertUser("Unable to take off.");
-                }
-            });
-        } else if (!vehicleState.isConnected()) {
-            // Connect
-            alertUser("Connect to a drone first");
-        } else {
-            // Connected but not Armed
-            VehicleApi.getApi(this.drone).arm(true, false, new SimpleCommandListener() {
-                @Override
-                public void onError(int executionError) {
-                    alertUser("Unable to arm vehicle.");
-                }
-
-                @Override
-                public void onTimeout() {
-                    alertUser("Arming operation timed out.");
-                }
-            });
-        }
-    }
-
     //################################# UI updating ###############################
 
     private void checkSoloState() {
@@ -705,34 +690,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View view) {
                 armButton();
-                //arm 알림창
             }
         });
     }
 
     //*************************** 버튼 컨트롤에 쓰이는 함수 ***********************************
-
-    //arm알림창
-    private void checkArmAlert(){
-        AlertDialog.Builder arm_builder = new AlertDialog.Builder(this);
-        arm_builder.setTitle("시동 확인 대화상자")
-                .setMessage("모터를 가동합니다.\n모터가 고속으로 회전합니다.")
-                .setCancelable(false)
-                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //확인 클릭시
-
-                    }
-                })
-                .setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-    }
-
 
     private void connectButton(){//연결버튼
         if(this.drone.isConnected()){
@@ -760,7 +722,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else {
             // Connected but not Armed
             AlertDialog.Builder arm_builder = new AlertDialog.Builder(this);
-            arm_builder.setTitle("시동 확인 대화상자")
+            arm_builder.setTitle("모터 시동")
                     .setMessage("모터를 가동합니다.\n모터가 고속으로 회전합니다.")
                     .setCancelable(false)
                     .setPositiveButton("확인", new DialogInterface.OnClickListener() {
@@ -793,8 +755,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     //land
     private void landButton(){
         AlertDialog.Builder land_builder = new AlertDialog.Builder(this);
-        land_builder.setTitle("시동 확인 대화상자")
-                .setMessage("모터를 가동합니다.\n모터가 고속으로 회전합니다.")
+        land_builder.setTitle("착륙확인")
+                .setMessage("기체를 착륙합니다.\n안전거리를 유지하세요.")
                 .setCancelable(false)
                 .setPositiveButton("확인", new DialogInterface.OnClickListener() {
                     @Override
@@ -825,8 +787,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     //takeoff
     private void takeOffButton(){
         AlertDialog.Builder takeOff_builder = new AlertDialog.Builder(this);
-        takeOff_builder.setTitle("시동 확인 대화상자")
-                .setMessage("모터를 가동합니다.\n모터가 고속으로 회전합니다.")
+        takeOff_builder.setTitle("기체상승 확인")
+                .setMessage("지정한 이륙고도까지 기체가 상승합니다.\n안전거리를 유지하세요.")
                 .setCancelable(false)
                 .setPositiveButton("확인", new DialogInterface.OnClickListener() {
                     @Override
@@ -893,7 +855,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
-
     protected void updateVehicleModesForType(int droneType) {
         List<VehicleMode> vehicleModes = VehicleMode.getVehicleModePerDroneType(droneType);
         ArrayAdapter<VehicleMode> vehicleModeArrayAdapter = new ArrayAdapter<VehicleMode>(this, android.R.layout.simple_spinner_item, vehicleModes);
@@ -910,55 +871,62 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //********************************* 가이드 모드 *******************************************
 //
-//    private class GuideMode{
-//        private LatLng mGuidedPoint;    //가이드 목적지 저장
-//        private Marker mMarkerGuide = new Marker();
-//        private OverlayImage guideIcon = OverlayImage.fromResource(R.drawable.marker_guide);
-//
-//
-//        private void DialogSimple(final Drone dronem ,final LatLong point){
-//            AlertDialog.Builder alt_bld = new AlertDialog.Builder(MainActivity.this);
-//            alt_bld.setMessage("확인하시면 가이드모드로 전환후 기체가 이동합니다.")
-//                    .setCancelable(false).setPositiveButton("확인",
-//                    new DialogInterface.OnClickListener(){
-//                        public void onClick(DialogInterface dialog, int id){
-//                            VehicleApi.getApi(drone).setVehicleMode(VehicleMode.COPTER_GUIDED,
-//                                    new AbstractCommandListener() {
-//                                        @Override
-//                                        public void onSuccess() {
-//                                            ControlApi.getApi(drone).goTo(point, true, null);
-//                                        }
-//
-//                                        @Override
-//                                        public void onError(int executionError) {
-//
-//                                        }
-//
-//                                        @Override
-//                                        public void onTimeout() {
-//
-//                                        }
-//                                    });
-//                        }
-//                    }).setNegativeButton("취소",
-//                    new DialogInterface.OnClickListener(){
-//                        public void onClick(DialogInterface dialog, int id){
-//                            dialog.cancel();
-//                        }
-//                    });
-//            AlertDialog alert = alt_bld.create();
-//            alert.setTitle("Title");
-//            alert.setIcon(R.drawable.drone);
-//            alert.show();
-//        }
-//
-//        public boolean CheckGoal(final Drone drone, LatLng recentLatLng){
-//            GuidedState guidedState = drone.getAttribute(AttributeType.GUIDED_STATE);
-//            LatLng target = new LatLng(guidedState.getCoordinate().getLatitude(),
-//                    guidedState.getCoordinate().getLongitude());
-//            return target.distanceTo(recentLatLng) <= 1;
-//        }
-//    }
+    private class GuideMode{
+        private LatLng mGuidedPoint;    //가이드 목적지 저장
+        private Marker mMarkerGuide = new Marker();
+        private OverlayImage guideIcon = OverlayImage.fromResource(R.drawable.marker_guide);
+
+
+        GuideMode(LatLng guidePoint){
+            this.mGuidedPoint = guidePoint;
+            this.mMarkerGuide.setIcon(guideIcon);
+            this.mMarkerGuide.setMap(myMap);
+        }
+
+        private void DialogSimple(final Drone drone ,final LatLong point){
+            Log.e("my_log","dialogsimple함수 들어왔다");
+            AlertDialog.Builder guide_bld = new AlertDialog.Builder(MainActivity.this);
+            guide_bld.setMessage("확인하시면 가이드모드로 전환후 기체가 이동합니다.")
+                    .setCancelable(false).setPositiveButton("확인",
+                    new DialogInterface.OnClickListener(){
+                        public void onClick(DialogInterface dialog, int id){
+                           VehicleApi.getApi(drone).setVehicleMode(VehicleMode.COPTER_GUIDED,
+                                   new AbstractCommandListener() {
+                                        @Override
+                                        public void onSuccess() {
+                                            Log.e("my_log","가이드 모드 실행됐다");
+                                            ControlApi.getApi(drone).goTo(point, true, null);
+                                        }
+
+                                        @Override
+                                        public void onError(int executionError) {
+                                            alertUser("가이드 모드 변경 실패 : " + executionError);
+                                        }
+
+                                        @Override
+                                        public void onTimeout() {
+                                            alertUser("가이드 모드 변경 실패.");
+                                        }
+                                    });
+                        }
+                    }).setNegativeButton("취소",
+                    new DialogInterface.OnClickListener(){
+                        public void onClick(DialogInterface dialog, int id){
+                            dialog.cancel();
+                        }
+                    });
+            guide_bld.show();
+        }
+
+        public boolean CheckGoal(final Drone drone, LatLng recentLatLng){
+            GuidedState guidedState = drone.getAttribute(AttributeType.GUIDED_STATE);
+            LatLng target = new LatLng(guidedState.getCoordinate().getLatitude(),
+                    guidedState.getCoordinate().getLongitude());
+            return target.distanceTo(recentLatLng) <= 1;
+        }
+
+
+    }
 
     //*********************************************************************************
     //asyncTask 스레드 사용해서 json받아오기기

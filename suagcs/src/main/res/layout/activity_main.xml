@@ -39,68 +39,11 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/basicModeButtons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/list_view"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="5dp"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/flightModeBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/mybutton_takeoff_altitude"
-            android:text="일반모드" />
-
-        <LinearLayout
-            android:layout_width="600dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/flightModeState"
-            android:orientation="horizontal"
-            android:visibility="invisible">
-
-            <Button
-                android:id="@+id/FlyMode_Basic"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="#CCCC99"
-                android:text="일반모드" />
-
-
-            <Button
-                android:id="@+id/FlyMode_Path"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="#CCCC99"
-                android:text="Path모드" />
-
-            <Button
-                android:id="@+id/FlyMode_Gap"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="#CCCC99"
-                android:text="Gap모드" />
-
-            <Button
-                android:id="@+id/FlyMode_Area"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="#CCCC99"
-                android:text="Area모드" />
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
         android:id="@+id/altitudeBtns"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/basicModeButtons"
+        app:layout_constraintTop_toBottomOf="@+id/list_view"
         android:orientation="horizontal"
         android:layout_marginTop="5dp"
         android:layout_marginStart="5dp">
