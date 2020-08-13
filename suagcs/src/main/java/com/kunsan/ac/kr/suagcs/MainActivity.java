@@ -120,6 +120,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private List<LatLng> gpsCoords = new ArrayList<>();
 
     private final Handler handler = new Handler();
+
+    //ui셋팅변수
+    private UiSettings uiSettings;
+
+    //내 기체 위치
+    private LatLong vehiclePosition;
+
+    //맵 폴리라인
+    private PolylineOverlay polyline;
+
+    //내 위치 마커
+    private Marker myLocation;
+
     //json 리턴값 저장할 변수
     private String result="";
 
@@ -207,7 +220,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.myMap = naverMap;
 
         // 네이버 로고 위치 변경
-        UiSettings uiSettings = naverMap.getUiSettings();
+        uiSettings = naverMap.getUiSettings();
         uiSettings.setLogoMargin(2080, 0, 0, 925);
 
         // 나침반 제거
@@ -353,6 +366,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
 
             case AttributeEvent.STATE_UPDATED:
+                updateMyLocation();
+                break;
             case AttributeEvent.STATE_ARMING:
                 updateArmButton();
                 break;
@@ -509,14 +524,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected  void updateMyLocation(){
         //기체의 gps값 받아오기
         Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
-        LatLong vehiclePosition = droneGps.getPosition();
+        vehiclePosition = droneGps.getPosition();
 
         //기체 위치를 gps저장하는 리스트에 저장하기
         LatLng gps = new LatLng(vehiclePosition.getLatitude(),vehiclePosition.getLongitude());
         gpsCoords.add(gps);
 
         //기체의 gps값으로 마커위치 지정하고 이미지 입히기
-        Marker myLocation = new Marker();
+        myLocation = new Marker();
         myLocation.setIcon(OverlayImage.fromResource(R.drawable.marker_icon));
         myLocation.setPosition(new LatLng(vehiclePosition.getLatitude(),vehiclePosition.getLongitude()));
 
@@ -531,7 +546,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         myLocation.setMap(myMap);
 
         //기체가 지나갔던 길을 폴리라인으로 그려주기
-        PolylineOverlay polyline = new PolylineOverlay();
+        polyline = new PolylineOverlay();
         polyline.setCoords(gpsCoords);
         polyline.setColor(Color.GREEN);
         polyline.setMap(myMap);
@@ -644,9 +659,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View view) {
                 if(lockCheck){
                     Toast.makeText(getApplicationContext(), "앱 잠금", Toast.LENGTH_SHORT).show();
+                    uiSettings.setScrollGesturesEnabled(false);
                     lockCheck = false;
                 }else{
                     Toast.makeText(getApplicationContext(), "앱 잠금 해제", Toast.LENGTH_SHORT).show();
+                    uiSettings.setScrollGesturesEnabled(true);
                     lockCheck = true;
                 }
             }
@@ -713,6 +730,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View view) {
                 //지도 초기화
                 Toast.makeText(getApplicationContext(), "초기화", Toast.LENGTH_SHORT).show();
+                myLocation.setMap(null);
+                polyline.setMap(null);
+                for(LatLng latlng:gpsCoords){
+                    gpsCoords.remove(latlng);
+                }
             }
         });
 
