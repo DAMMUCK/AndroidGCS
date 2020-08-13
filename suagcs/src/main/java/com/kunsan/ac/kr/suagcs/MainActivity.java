@@ -81,6 +81,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -114,6 +115,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected double mRecentAltitude = 0;
 
     public int Reached_Count = 0;
+
+    //폴리라인 그리기 위해 내 위치들 저장하는 리스트
+    private List<LatLng> gpsCoords = new ArrayList<>();
 
     private final Handler handler = new Handler();
     //json 리턴값 저장할 변수
@@ -507,6 +511,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
         LatLong vehiclePosition = droneGps.getPosition();
 
+        //기체 위치를 gps저장하는 리스트에 저장하기
+        LatLng gps = new LatLng(vehiclePosition.getLatitude(),vehiclePosition.getLongitude());
+        gpsCoords.add(gps);
+
         //기체의 gps값으로 마커위치 지정하고 이미지 입히기
         Marker myLocation = new Marker();
         myLocation.setIcon(OverlayImage.fromResource(R.drawable.marker_icon));
@@ -521,6 +529,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         float yaw = (float)attitude.getYaw();
         myLocation.setAngle(yaw);
         myLocation.setMap(myMap);
+
+        //기체가 지나갔던 길을 폴리라인으로 그려주기
+        PolylineOverlay polyline = new PolylineOverlay();
+        polyline.setCoords(gpsCoords);
+        polyline.setColor(Color.GREEN);
+        polyline.setMap(myMap);
     }
 
    /* protected void updateDistanceFromHome() {
