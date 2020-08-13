@@ -221,6 +221,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // 초기 상태를 맵 잠금으로 설정
         uiSettings.setScrollGesturesEnabled(false);
 
+        //내 위치 업데이트
+        updateMyLocation();
+
         Log.e("mylog","컨트롤 버튼 들어가기전");
         // UI상 버튼 제어
         initButtons();
@@ -237,13 +240,38 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 //기체가 목적지에 도달하면 마커삭제하고 로이터 모드로 변환
                 if( guideMode.CheckGoal(drone,latLng) == false ){
                     guideMode.mMarkerGuide.setMap(null);
+                    alertUser("목적지에 도착했습니다.");
                     changeToLoiter();
                 }
             }
         });
 
+        //가이드 모드일때 목표지점을 바꾸면 목표지점 바꿔서 다시 시작하기
+        State vehicleState = this.drone.getAttribute(AttributeType.STATE);
+        VehicleMode vehicleMode = vehicleState.getVehicleMode();
+
+        if(vehicleMode == VehicleMode.COPTER_GUIDED){
+            myMap.setOnMapClickListener(new NaverMap.OnMapClickListener() {
+                @Override
+                public void onMapClick(@NonNull PointF pointF, @NonNull LatLng latLng) {
+                    GuideMode guideMode2 = new GuideMode(latLng);
+                    LatLong latlong = new LatLong(latLng.latitude,latLng.longitude);
+                    alertUser("목적지를 변경합니다.");
+                    guideMode2.DialogSimple(drone,latlong);
+
+
+                    //기체가 목적지에 도달하면 마커삭제하고 로이터 모드로 변환
+                    if( guideMode2.CheckGoal(drone,latLng) == false ){
+                        guideMode2.mMarkerGuide.setMap(null);
+                        alertUser("목적지에 도착했습니다.");
+                        changeToLoiter();
+                    }
+                }
+            });
+        }
 
     }
+
 
     //상태바 제거
     private void deleteStatusBar() {
@@ -472,6 +500,27 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         TextView speedTextView = (TextView) findViewById(R.id.speedValue);
         Speed droneSpeed = this.drone.getAttribute(AttributeType.SPEED);
         speedTextView.setText(String.format("%3.1f", droneSpeed.getGroundSpeed()) + "m/s");
+    }
+
+    protected  void updateMyLocation(){
+        //기체의 gps값 받아오기
+        Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
+        LatLong vehiclePosition = droneGps.getPosition();
+
+        //기체의 gps값으로 마커위치 지정하고 이미지 입히기
+        Marker myLocation = new Marker();
+        myLocation.setIcon(OverlayImage.fromResource(R.drawable.marker_icon));
+        myLocation.setPosition(new LatLng(vehiclePosition.getLatitude(),vehiclePosition.getLongitude()));
+
+        //마커가 카메라 중심에 있게 움직이게 하기
+        CameraUpdate cameraUpdate = CameraUpdate.scrollTo(new LatLng(vehiclePosition.getLatitude(),vehiclePosition.getLongitude()));
+        myMap.moveCamera(cameraUpdate);
+
+        //yaw값에 따라 마커도 회전하기
+        Attitude attitude = this.drone.getAttribute(AttributeType.ATTITUDE);
+        float yaw = (float)attitude.getYaw();
+        myLocation.setAngle(yaw);
+        myLocation.setMap(myMap);
     }
 
    /* protected void updateDistanceFromHome() {
@@ -882,6 +931,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             this.mMarkerGuide.setIcon(guideIcon);
             this.mMarkerGuide.setMap(myMap);
         }
+
 
         private void DialogSimple(final Drone drone ,final LatLong point){
             Log.e("my_log","dialogsimple함수 들어왔다");
