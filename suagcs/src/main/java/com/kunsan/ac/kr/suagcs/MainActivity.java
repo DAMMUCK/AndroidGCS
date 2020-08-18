@@ -240,17 +240,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         myMap.setOnMapLongClickListener(new NaverMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(@NonNull PointF pointF, @NonNull LatLng latLng) {
-                Log.e("my_log","롱클릭 시 함수 들어왔당");
-                if(drone.isConnected()){
+                Log.e("my_log","롱클릭 시 함수 들어왔다");
                     mMarkerGuide.setPosition(latLng);
                     mMarkerGuide.setMap(myMap);
                     mMarkerGuide.setIcon(guideIcon);
                     guideMode(latLng);
-                }else {
-                    alertUser("드론기체와 연결하세요.");
-                }
-
-
             }
         });
 
