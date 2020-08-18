@@ -314,11 +314,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.d("my_log","dialogsimple함수 들어왔다");
         LatLong latlong = new LatLong(point.latitude,point.longitude);
         Log.d("my_log","latlong : "+latlong);
-        AlertDialog.Builder guide_bld = new AlertDialog.Builder(MainActivity.this);
-        guide_bld.setMessage("확인하시면 가이드모드로 전환후 기체가 이동합니다.")
-                .setCancelable(false).setPositiveButton("확인",
-                new DialogInterface.OnClickListener(){
-                    public void onClick(DialogInterface dialog, int id){
+
+        AlertDialog.Builder guideMode_builder = new AlertDialog.Builder(this);
+        guideMode_builder.setTitle("가이드 모드")
+                .setMessage("가이드 모드로 변경합니다.\n목적지로 이동합니다.")
+                .setCancelable(false)
+                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
                         VehicleApi.getApi(drone).setVehicleMode(VehicleMode.COPTER_GUIDED,
                                 new AbstractCommandListener() {
                                     @Override
@@ -338,13 +341,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     }
                                 });
                     }
-                }).setNegativeButton("취소",
-                new DialogInterface.OnClickListener(){
-                    public void onClick(DialogInterface dialog, int id){
+                })
+                .setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
                     }
                 });
-        guide_bld.show();
+        guideMode_builder.show();
     }
 
     private boolean checkGoal(LatLng recentLatLng){
