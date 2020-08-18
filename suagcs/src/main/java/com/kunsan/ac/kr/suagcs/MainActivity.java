@@ -316,7 +316,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     //*********************************가이드 모드 함수*********************
-    private void guideMode(final LatLng point){
+    private void guideMode(@NonNull final LatLng point){
         Log.d("my_log","dialogsimple함수 들어왔다");
         LatLong latlong = new LatLong(point.latitude,point.longitude);
         Log.d("my_log","latlong : "+latlong);
@@ -341,7 +341,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         guideMode_builder.show();
     }
 
-    private void guide(LatLong latlong){
+    private void guide(@NonNull LatLong latlong){
         VehicleApi.getApi(drone).setVehicleMode(VehicleMode.COPTER_GUIDED,
                 new AbstractCommandListener() {
                     @Override
@@ -362,13 +362,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                 });
     }
-/*
-    private boolean checkGoal(LatLng recentLatLng){
-        GuidedState guidedState = drone.getAttribute(AttributeType.GUIDED_STATE);
-        LatLng target = new LatLng(guidedState.getCoordinate().getLatitude(),
-                guidedState.getCoordinate().getLongitude());
-        return target.distanceTo(recentLatLng) <= 1;
-    }*/
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
