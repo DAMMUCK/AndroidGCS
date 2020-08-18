@@ -249,10 +249,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onMapLongClick(@NonNull PointF pointF, @NonNull LatLng latLng) {
                 Log.e("my_log","롱클릭 시 함수 들어왔당");
-                mMarkerGuide.setPosition(latLng);
-                mMarkerGuide.setMap(myMap);
-                guideMode(latLng);
-
+                if(drone.isConnected()){
+                    mMarkerGuide.setIcon(guideIcon);
+                    mMarkerGuide.setPosition(latLng);
+                    mMarkerGuide.setMap(myMap);
+                    guideMode(latLng);
+                }else {
+                    alertUser("드론기체와 연결하세요.");
+                }
             }
         });
 
