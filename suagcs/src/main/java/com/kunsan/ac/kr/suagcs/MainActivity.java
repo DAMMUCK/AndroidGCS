@@ -265,9 +265,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 @Override
                 public void onMapClick(@NonNull PointF pointF, @NonNull LatLng latLng) {
                     Log.e("my_log","가이드 모드일때 목적지 변경하는 함수 들어왔다");
-                    mMarkerGuide.setPosition(latLng);
-                    mMarkerGuide.setMap(myMap);
-                    guideMode(latLng);
+
+                    if(drone.isConnected()){
+                        mMarkerGuide.setIcon(guideIcon);
+                        mMarkerGuide.setPosition(latLng);
+                        mMarkerGuide.setMap(myMap);
+                        guideMode(latLng);
+                    }else {
+                        alertUser("드론기체와 연결하세요.");
+                    }
                 }
             });
         }
@@ -314,9 +320,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.d("my_log","dialogsimple함수 들어왔다");
         LatLong latlong = new LatLong(point.latitude,point.longitude);
         Log.d("my_log","latlong : "+latlong);
-        mMarkerGuide.setIcon(guideIcon);
-        mMarkerGuide.setPosition(point);
-        mMarkerGuide.setMap(myMap);
 
 
         AlertDialog.Builder guideMode_builder = new AlertDialog.Builder(this);
