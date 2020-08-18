@@ -253,11 +253,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 mMarkerGuide.setMap(myMap);
                 guideMode(latLng);
 
-                if(checkGoal(latLng) == false){
-                    mMarkerGuide.setMap(null);
-                    alertUser("목적지에 도착했습니다.");
-                    changeToLoiter();
-                }
             }
         });
 
@@ -269,7 +264,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             myMap.setOnMapClickListener(new NaverMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(@NonNull PointF pointF, @NonNull LatLng latLng) {
-
+                    Log.e("my_log","가이드 모드일때 목적지 변경하는 함수 들어왔다");
+                    mMarkerGuide.setPosition(latLng);
+                    mMarkerGuide.setMap(myMap);
+                    guideMode(latLng);
                 }
             });
         }
@@ -313,8 +311,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //*********************************가이드 모드 함수*********************
     private void guideMode(final LatLng point){
-        Log.e("my_log","dialogsimple함수 들어왔다");
+        Log.d("my_log","dialogsimple함수 들어왔다");
         LatLong latlong = new LatLong(point.latitude,point.longitude);
+        Log.d("my_log","latlong : "+latlong);
         AlertDialog.Builder guide_bld = new AlertDialog.Builder(MainActivity.this);
         guide_bld.setMessage("확인하시면 가이드모드로 전환후 기체가 이동합니다.")
                 .setCancelable(false).setPositiveButton("확인",
@@ -434,7 +433,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 UpdateYaw();
                 break;
             case AttributeEvent.GPS_POSITION:
-                alertUser("내 위치 업데이트 함수 state_update");
                 updateMyLocation();
                 break;
             default:
@@ -556,7 +554,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     protected  void updateMyLocation(){
         Log.e("my_location","내 위치표시 함수 들어왔당");
-        alertUser("내 위치 업데이트 함수");
 
         //기체의 gps값 받아오기
         Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
