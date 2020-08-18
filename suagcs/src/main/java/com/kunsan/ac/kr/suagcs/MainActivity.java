@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private PolylineOverlay polyline;
 
     //내 위치 마커
-    private Marker myLocation;
+    private Marker myLocation = new Marker();
 
     //가이드 모드에 사용되는 변수
     private Marker mMarkerGuide = new Marker();
@@ -160,7 +160,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     LinearLayout altitudeLayout;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {//맵 실행 되기 전
+    protected void onCreate(Bundle savedInstanceState) {
+        //맵 실행 되기 전
         Log.i(TAG, "Start mainActivity");
         super.onCreate(savedInstanceState);
         // 소프트바 없애기
@@ -226,15 +227,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // 네이버 로고 위치 변경
         uiSettings = naverMap.getUiSettings();
         uiSettings.setLogoMargin(2080, 0, 0, 925);
-
-        // 나침반 제거
-        uiSettings.setCompassEnabled(false);
-
-        // 축척 바 제거
-        uiSettings.setScaleBarEnabled(false);
-
-        // 줌 버튼 제거
-        uiSettings.setZoomControlEnabled(false);
 
         // 이륙고도 표시
         ShowTakeOffAltitude();
@@ -596,6 +588,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
             //기체의 gps값으로 마커위치 지정하고 이미지 입히기
             myLocation.setIcon(OverlayImage.fromResource(R.drawable.marker_icon));
+            myLocation.setWidth(20);
+            myLocation.setHeight(100);
             myLocation.setPosition(new LatLng(vehiclePosition.getLatitude(),vehiclePosition.getLongitude()));
 
 
