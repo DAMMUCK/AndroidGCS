@@ -595,7 +595,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Log.d("gps", gpsCoords.toString());
             }
             //기체의 gps값으로 마커위치 지정하고 이미지 입히기
-            myLocation = new Marker();
             myLocation.setIcon(OverlayImage.fromResource(R.drawable.marker_icon));
             myLocation.setPosition(new LatLng(vehiclePosition.getLatitude(),vehiclePosition.getLongitude()));
 
@@ -618,7 +617,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             State vehicleState = this.drone.getAttribute(AttributeType.STATE);
             VehicleMode vehicleMode = vehicleState.getVehicleMode();
-           
+
         }
     }
 
