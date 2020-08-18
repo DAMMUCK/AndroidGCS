@@ -270,14 +270,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 public void onMapClick(@NonNull PointF pointF, @NonNull LatLng latLng) {
                     Log.e("my_log","가이드 모드일때 목적지 변경하는 함수 들어왔다");
 
-                    if(drone.isConnected()){
                         mMarkerGuide.setIcon(guideIcon);
                         mMarkerGuide.setPosition(latLng);
                         mMarkerGuide.setMap(myMap);
                         guideMode(latLng);
-                    }else {
-                        alertUser("드론기체와 연결하세요.");
-                    }
                 }
             });
         }
@@ -333,24 +329,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .setPositiveButton("확인", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        VehicleApi.getApi(drone).setVehicleMode(VehicleMode.COPTER_GUIDED,
-                                new AbstractCommandListener() {
-                                    @Override
-                                    public void onSuccess() {
-                                        Log.e("my_log","가이드 모드 실행됐다");
-                                        ControlApi.getApi(drone).goTo(latlong, true, null);
-                                    }
-
-                                    @Override
-                                    public void onError(int executionError) {
-                                        alertUser("가이드 모드 변경 실패 : " + executionError);
-                                    }
-
-                                    @Override
-                                    public void onTimeout() {
-                                        alertUser("가이드 모드 변경 실패.");
-                                    }
-                                });
+                       guide(latlong);
                     }
                 })
                 .setNegativeButton("취소", new DialogInterface.OnClickListener() {
@@ -360,6 +339,28 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                 });
         guideMode_builder.show();
+    }
+
+    private void guide(LatLong latlong){
+        VehicleApi.getApi(drone).setVehicleMode(VehicleMode.COPTER_GUIDED,
+                new AbstractCommandListener() {
+                    @Override
+                    public void onSuccess() {
+                        Log.e("my_log","가이드 모드 실행됐다");
+                        ControlApi.getApi(drone).goTo(latlong, true, null);
+                        changeToLoiter();
+                    }
+
+                    @Override
+                    public void onError(int executionError) {
+                        alertUser("가이드 모드 변경 실패 : " + executionError);
+                    }
+
+                    @Override
+                    public void onTimeout() {
+                        alertUser("가이드 모드 변경 실패.");
+                    }
+                });
     }
 /*
     private boolean checkGoal(LatLng recentLatLng){
