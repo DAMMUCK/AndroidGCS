@@ -250,13 +250,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onMapLongClick(@NonNull PointF pointF, @NonNull LatLng latLng) {
                 Log.e("my_log","롱클릭 시 함수 들어왔당");
                 if(drone.isConnected()){
-                    mMarkerGuide.setIcon(guideIcon);
                     mMarkerGuide.setPosition(latLng);
                     mMarkerGuide.setMap(myMap);
+                    mMarkerGuide.setIcon(guideIcon);
                     guideMode(latLng);
                 }else {
                     alertUser("드론기체와 연결하세요.");
                 }
+
+
             }
         });
 
@@ -270,10 +272,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 public void onMapClick(@NonNull PointF pointF, @NonNull LatLng latLng) {
                     Log.e("my_log","가이드 모드일때 목적지 변경하는 함수 들어왔다");
 
-                        mMarkerGuide.setIcon(guideIcon);
-                        mMarkerGuide.setPosition(latLng);
-                        mMarkerGuide.setMap(myMap);
-                        guideMode(latLng);
+                    mMarkerGuide.setIcon(guideIcon);
+                    mMarkerGuide.setPosition(latLng);
+                    mMarkerGuide.setMap(myMap);
+                    guideMode(latLng);
                 }
             });
         }
@@ -362,6 +364,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                 });
     }
+
+    //목적지 체크
+ /*   private boolean checkGoal(LatLng recentLatLng){
+        GuidedState guidedState = drone.getAttribute(AttributeType.GUIDED_STATE);
+        LatLng target = new LatLng(guidedState.getCoordinate().getLatitude(),
+                guidedState.getCoordinate().getLongitude());
+        return target.distanceTo(recentLatLng) <= 1;
+    }*/
+
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -604,6 +615,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             polyline.setCoords(gpsCoords);
             polyline.setColor(Color.GREEN);
             polyline.setMap(myMap);
+
+            State vehicleState = this.drone.getAttribute(AttributeType.STATE);
+            VehicleMode vehicleMode = vehicleState.getVehicleMode();
+           
         }
     }
 
