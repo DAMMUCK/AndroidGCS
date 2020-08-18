@@ -314,6 +314,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.d("my_log","dialogsimple함수 들어왔다");
         LatLong latlong = new LatLong(point.latitude,point.longitude);
         Log.d("my_log","latlong : "+latlong);
+        mMarkerGuide.setIcon(guideIcon);
+        mMarkerGuide.setPosition(point);
+        mMarkerGuide.setMap(myMap);
+
 
         AlertDialog.Builder guideMode_builder = new AlertDialog.Builder(this);
         guideMode_builder.setTitle("가이드 모드")
@@ -350,13 +354,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 });
         guideMode_builder.show();
     }
-
+/*
     private boolean checkGoal(LatLng recentLatLng){
         GuidedState guidedState = drone.getAttribute(AttributeType.GUIDED_STATE);
         LatLng target = new LatLng(guidedState.getCoordinate().getLatitude(),
                 guidedState.getCoordinate().getLongitude());
         return target.distanceTo(recentLatLng) <= 1;
-    }
+    }*/
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
