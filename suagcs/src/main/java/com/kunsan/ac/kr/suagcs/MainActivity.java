@@ -133,6 +133,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     //내 위치 마커
     private Marker myLocation;
 
+    //가이드 모드에 사용되는 변수
+    private Marker mMarkerGuide = new Marker();
+    private OverlayImage guideIcon = OverlayImage.fromResource(R.drawable.marker_guide);
+
     //json 리턴값 저장할 변수
     private String result="";
 
@@ -235,11 +239,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // 이륙고도 표시
         ShowTakeOffAltitude();
 
-        // 초기 상태를 맵 잠금으로 설정
-        uiSettings.setScrollGesturesEnabled(false);
-
-        //내 위치 업데이트
-        updateMyLocation();
 
         Log.e("mylog","컨트롤 버튼 들어가기전");
         // UI상 버튼 제어
@@ -250,13 +249,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onMapLongClick(@NonNull PointF pointF, @NonNull LatLng latLng) {
                 Log.e("my_log","롱클릭 시 함수 들어왔당");
-                GuideMode guideMode = new GuideMode(latLng);
-                LatLong latlong = new LatLong(latLng.latitude,latLng.longitude);
-                guideMode.DialogSimple(drone,latlong);
+                mMarkerGuide.setPosition(latLng);
+                mMarkerGuide.setMap(myMap);
+                guideMode(latLng);
 
-                //기체가 목적지에 도달하면 마커삭제하고 로이터 모드로 변환
-                if( guideMode.CheckGoal(drone,latLng) == false ){
-                    guideMode.mMarkerGuide.setMap(null);
+                if(checkGoal(latLng) == false){
+                    mMarkerGuide.setMap(null);
                     alertUser("목적지에 도착했습니다.");
                     changeToLoiter();
                 }
@@ -271,18 +269,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             myMap.setOnMapClickListener(new NaverMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(@NonNull PointF pointF, @NonNull LatLng latLng) {
-                    GuideMode guideMode2 = new GuideMode(latLng);
-                    LatLong latlong = new LatLong(latLng.latitude,latLng.longitude);
-                    alertUser("목적지를 변경합니다.");
-                    guideMode2.DialogSimple(drone,latlong);
 
-
-                    //기체가 목적지에 도달하면 마커삭제하고 로이터 모드로 변환
-                    if( guideMode2.CheckGoal(drone,latLng) == false ){
-                        guideMode2.mMarkerGuide.setMap(null);
-                        alertUser("목적지에 도착했습니다.");
-                        changeToLoiter();
-                    }
                 }
             });
         }
@@ -322,6 +309,50 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+    }
+
+    //*********************************가이드 모드 함수*********************
+    private void guideMode(final LatLng point){
+        Log.e("my_log","dialogsimple함수 들어왔다");
+        LatLong latlong = new LatLong(point.latitude,point.longitude);
+        AlertDialog.Builder guide_bld = new AlertDialog.Builder(MainActivity.this);
+        guide_bld.setMessage("확인하시면 가이드모드로 전환후 기체가 이동합니다.")
+                .setCancelable(false).setPositiveButton("확인",
+                new DialogInterface.OnClickListener(){
+                    public void onClick(DialogInterface dialog, int id){
+                        VehicleApi.getApi(drone).setVehicleMode(VehicleMode.COPTER_GUIDED,
+                                new AbstractCommandListener() {
+                                    @Override
+                                    public void onSuccess() {
+                                        Log.e("my_log","가이드 모드 실행됐다");
+                                        ControlApi.getApi(drone).goTo(latlong, true, null);
+                                    }
+
+                                    @Override
+                                    public void onError(int executionError) {
+                                        alertUser("가이드 모드 변경 실패 : " + executionError);
+                                    }
+
+                                    @Override
+                                    public void onTimeout() {
+                                        alertUser("가이드 모드 변경 실패.");
+                                    }
+                                });
+                    }
+                }).setNegativeButton("취소",
+                new DialogInterface.OnClickListener(){
+                    public void onClick(DialogInterface dialog, int id){
+                        dialog.cancel();
+                    }
+                });
+        guide_bld.show();
+    }
+
+    private boolean checkGoal(LatLng recentLatLng){
+        GuidedState guidedState = drone.getAttribute(AttributeType.GUIDED_STATE);
+        LatLng target = new LatLng(guidedState.getCoordinate().getLatitude(),
+                guidedState.getCoordinate().getLongitude());
+        return target.distanceTo(recentLatLng) <= 1;
     }
 
     @Override
@@ -366,8 +397,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
 
             case AttributeEvent.STATE_UPDATED:
-                updateMyLocation();
-                break;
             case AttributeEvent.STATE_ARMING:
                 updateArmButton();
                 break;
@@ -403,6 +432,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
             case AttributeEvent.ATTITUDE_UPDATED:
                 UpdateYaw();
+                break;
+            case AttributeEvent.GPS_POSITION:
+                alertUser("내 위치 업데이트 함수 state_update");
+                updateMyLocation();
                 break;
             default:
                 // Log.i("DRONE_EVENT", event); //Uncomment to see events from the drone
@@ -522,34 +555,50 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     protected  void updateMyLocation(){
+        Log.e("my_location","내 위치표시 함수 들어왔당");
+        alertUser("내 위치 업데이트 함수");
+
         //기체의 gps값 받아오기
         Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
         vehiclePosition = droneGps.getPosition();
 
-        //기체 위치를 gps저장하는 리스트에 저장하기
-        LatLng gps = new LatLng(vehiclePosition.getLatitude(),vehiclePosition.getLongitude());
-        gpsCoords.add(gps);
+        Log.d("myLog", "vehiclePosition : " + vehiclePosition);
 
-        //기체의 gps값으로 마커위치 지정하고 이미지 입히기
-        myLocation = new Marker();
-        myLocation.setIcon(OverlayImage.fromResource(R.drawable.marker_icon));
-        myLocation.setPosition(new LatLng(vehiclePosition.getLatitude(),vehiclePosition.getLongitude()));
 
-        //마커가 카메라 중심에 있게 움직이게 하기
-        CameraUpdate cameraUpdate = CameraUpdate.scrollTo(new LatLng(vehiclePosition.getLatitude(),vehiclePosition.getLongitude()));
-        myMap.moveCamera(cameraUpdate);
 
-        //yaw값에 따라 마커도 회전하기
-        Attitude attitude = this.drone.getAttribute(AttributeType.ATTITUDE);
-        float yaw = (float)attitude.getYaw();
-        myLocation.setAngle(yaw);
-        myLocation.setMap(myMap);
+        if(vehiclePosition == null){
+                Log.d("gpsNull", "gps가 아직 안잡혀서 널값들어갔다. 다시");
+        } else {
+            try{
+                //기체 위치를 gps저장하는 리스트에 저장하기
+                LatLng gps = new LatLng(vehiclePosition.getLatitude(),vehiclePosition.getLongitude());
+                gpsCoords.add(gps);
+            } catch (Exception e){
+                e.printStackTrace();
+                Log.d("gps", gpsCoords.toString());
+            }
+            //기체의 gps값으로 마커위치 지정하고 이미지 입히기
+            myLocation = new Marker();
+            myLocation.setIcon(OverlayImage.fromResource(R.drawable.marker_icon));
+            myLocation.setPosition(new LatLng(vehiclePosition.getLatitude(),vehiclePosition.getLongitude()));
 
-        //기체가 지나갔던 길을 폴리라인으로 그려주기
-        polyline = new PolylineOverlay();
-        polyline.setCoords(gpsCoords);
-        polyline.setColor(Color.GREEN);
-        polyline.setMap(myMap);
+
+            //마커가 카메라 중심에 있게 움직이게 하기
+            CameraUpdate cameraUpdate = CameraUpdate.scrollTo(new LatLng(vehiclePosition.getLatitude(),vehiclePosition.getLongitude()));
+            myMap.moveCamera(cameraUpdate);
+
+            //yaw값에 따라 마커도 회전하기
+            Attitude attitude = this.drone.getAttribute(AttributeType.ATTITUDE);
+            float yaw = (float)attitude.getYaw();
+            myLocation.setAngle(yaw);
+            myLocation.setMap(myMap);
+
+            //기체가 지나갔던 길을 폴리라인으로 그려주기
+            polyline = new PolylineOverlay();
+            polyline.setCoords(gpsCoords);
+            polyline.setColor(Color.GREEN);
+            polyline.setMap(myMap);
+        }
     }
 
    /* protected void updateDistanceFromHome() {
@@ -956,15 +1005,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //********************************* 가이드 모드 *******************************************
 //
-    private class GuideMode{
-        private LatLng mGuidedPoint;    //가이드 목적지 저장
+  /*  private class GuideMode{
         private Marker mMarkerGuide = new Marker();
         private OverlayImage guideIcon = OverlayImage.fromResource(R.drawable.marker_guide);
 
 
-        GuideMode(LatLng guidePoint){
-            this.mGuidedPoint = guidePoint;
+        GuideMode(LatLng latlng){
+            //가이드 목적지 저장
             this.mMarkerGuide.setIcon(guideIcon);
+            this.mMarkerGuide.setPosition(latlng);
             this.mMarkerGuide.setMap(myMap);
         }
 
@@ -1013,7 +1062,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     }
-
+*/
     //*********************************************************************************
     //asyncTask 스레드 사용해서 json받아오기기
     private class AsyncTaskThread extends AsyncTask<LatLng,Void, String> {
