@@ -252,19 +252,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
         VehicleMode vehicleMode = vehicleState.getVehicleMode();
 
-        if(vehicleMode == VehicleMode.COPTER_GUIDED){
-            myMap.setOnMapClickListener(new NaverMap.OnMapClickListener() {
-                @Override
-                public void onMapClick(@NonNull PointF pointF, @NonNull LatLng latLng) {
-                    Log.e("my_log","가이드 모드일때 목적지 변경하는 함수 들어왔다");
-
-                    mMarkerGuide.setIcon(guideIcon);
-                    mMarkerGuide.setPosition(latLng);
-                    mMarkerGuide.setMap(myMap);
-                    guideMode(latLng);
-                }
-            });
-        }
 
     }
 
