@@ -1,4 +1,5 @@
 package com.kunsan.ac.kr.suagcs;
+import android.app.ActionBar;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
@@ -147,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     //버튼들 정의
     Button armBtn, lockBtn, mapTypeBtn, cadastralOffBtn, clearBtn, connectBtn;
     Button basicMap, terrainMap, satelliteMap;
+    Button missionBtn, abBtn, cancelBtn, polygonBtn;
 
     //이륙고도 버튼
     Button takeOffAltitudeBtn;
@@ -156,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     Button altitudeDownBtn;
 
     //layout 변수
-    TableLayout layout;
+    TableLayout layout, missionLayout;
     LinearLayout altitudeLayout;
 
     @Override
@@ -696,11 +698,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         altitudeUpBtn = (Button) findViewById(R.id.altitudeUp);
         altitudeDownBtn = (Button) findViewById(R.id.altitudeDown);
 
+        //미션버튼
+        missionBtn = (Button) findViewById(R.id.missionBtn);
+        abBtn = (Button) findViewById(R.id.ab);
+        polygonBtn = (Button)findViewById(R.id.polygon);
+        cancelBtn = (Button) findViewById(R.id.cancel);
+
         //*************************** 기본 ui 버튼 제어
 
         //LinearLayout 변수
         layout = (TableLayout) findViewById(R.id.mapTypeLayout);
         altitudeLayout = (LinearLayout) findViewById(R.id.altitudeState);
+        missionLayout = (TableLayout) findViewById(R.id.missionTableLayout);
 
         /*앱 잠금 버튼 클릭 시 이벤트
         앱 잠금 상태 :맵을 드래그하면 맵이 자동으로 기체의 위치가 가운데인 생태로 조정된다. -> 드론 gps 값으로 카메라 고정
@@ -831,7 +840,42 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 armButton();
             }
         });
+
+        //미션버튼 이벤트
+        missionBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(missionLayout.getVisibility() ==  View.INVISIBLE){
+                    missionLayout.setVisibility(View.VISIBLE);
+                }else{
+                    missionLayout.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
+        abBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        polygonBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        cancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        
     }
+
 
     //*************************** 버튼 컨트롤에 쓰이는 함수 ***********************************
 
