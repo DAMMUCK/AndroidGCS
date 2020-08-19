@@ -320,7 +320,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     public void onSuccess() {
                         Log.e("my_log","가이드 모드 실행됐다");
                         ControlApi.getApi(drone).goTo(latlong, true, null);
-                        changeToLoiter();
                     }
 
                     @Override
@@ -583,10 +582,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         }
         changeGoal();
+        if(checkGoal()==true){
+            changeToLoiter();
+            mMarkerGuide.setMap(null);
+        }
     }
 
+
+    //가이드 모드일때 목표지점을 바꾸면 목표지점 바꿔서 다시 시작하기
     private void changeGoal(){
-        //가이드 모드일때 목표지점을 바꾸면 목표지점 바꿔서 다시 시작하기
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
         VehicleMode vehicleMode = vehicleState.getVehicleMode();
 
@@ -603,6 +607,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             });
         }
+    }
+
+
+    //목표지점에 도달했는지 체크
+    private boolean checkGoal(){
+        State vehicleState = this.drone.getAttribute(AttributeType.STATE);
+        VehicleMode vehicleMode = vehicleState.getVehicleMode();
+        LatLng goalPosition = mMarkerGuide.getPosition();
+        LatLng gps = new LatLng(vehiclePosition.getLatitude(),vehiclePosition.getLongitude());
+        //가이드 모드일때 맵에 목적지를 클릭하면
+        if(vehicleMode == VehicleMode.COPTER_GUIDED){
+            if(gps == goalPosition){
+                return true;
+            }
+        }
+        return false;
     }
 
    /* protected void updateDistanceFromHome() {
@@ -873,7 +893,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             }
         });
-        
+
     }
 
 
