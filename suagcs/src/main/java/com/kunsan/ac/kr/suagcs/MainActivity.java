@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private LatLong vehiclePosition;
 
     //맵 폴리라인
-    private PolylineOverlay polyline;
+    private PolylineOverlay polyline = new PolylineOverlay();
 
     //내 위치 마커
     private Marker myLocation = new Marker();
@@ -820,10 +820,29 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View view) {
                 //지도 초기화
                 Toast.makeText(getApplicationContext(), "초기화", Toast.LENGTH_SHORT).show();
-                myLocation.setMap(null);
-                polyline.setMap(null);
-                for(LatLng latlng:gpsCoords){
-                    gpsCoords.remove(latlng);
+                if(myLocation != null){myLocation.setMap(null);}
+                if(mMarkerGuide != null){mMarkerGuide.setMap(null);}
+                if(polyline != null){polyline.setMap(null);}
+                VehicleApi.getApi(drone).setVehicleMode(VehicleMode.COPTER_STABILIZE, new SimpleCommandListener() {
+                    @Override
+                    public void onSuccess() {
+                        alertUser("stabilize 모드로 변경 성공");
+                    }
+
+                    @Override
+                    public void onError(int executionError) {
+                        alertUser("stabilize 모드로 변경 실패 : " + executionError);
+                    }
+
+                    @Override
+                    public void onTimeout() {
+                        alertUser("stabilize 모드로 변경 실패.");
+                    }
+                });
+                if(gpsCoords != null){
+                    for(LatLng latlng:gpsCoords){
+                        gpsCoords.remove(latlng);
+                    }
                 }
             }
         });
