@@ -51,11 +51,11 @@
             android:text="미션"
             />
 
-        <LinearLayout
-            android:id="@+id/missionLayout"
+        <TableLayout
             android:layout_width="wrap_content"
-            android:layout_height="150dp"
-            app:layout_constraintTop_toBottomOf="@+id/missionBtn">
+            android:layout_height="wrap_content"
+            android:id="@+id/missionTableLayout"
+            android:visibility="invisible">
 
             <Button
                 android:id="@+id/ab"
@@ -64,18 +64,19 @@
                 android:text="AB" />
 
             <Button
-                android:id="@+id/polygon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="다각형" />
+                android:text="다각형"
+                android:id="@+id/polygon"/>
 
             <Button
-                android:id="@+id/cancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="취소" />
+                android:text="cancel"
+                android:id="@+id/cancel"/>
 
-        </LinearLayout>
+        </TableLayout>
+
     </LinearLayout>
 
     <LinearLayout
