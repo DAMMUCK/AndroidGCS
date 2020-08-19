@@ -16,9 +16,8 @@
 
     <LinearLayout
         android:id="@+id/list_view"
-        android:layout_width="match_parent"
+        android:layout_width="650dp"
         android:layout_height="150dp"
-        android:layout_marginStart="8dp"
         android:orientation="horizontal"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/info_linearLayout">
@@ -39,8 +38,49 @@
     </LinearLayout>
 
     <LinearLayout
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/info_linearLayout">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/missionBtn"
+            android:text="미션"
+            />
+
+        <LinearLayout
+            android:id="@+id/missionLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="150dp"
+            app:layout_constraintTop_toBottomOf="@+id/missionBtn">
+
+            <Button
+                android:id="@+id/ab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AB" />
+
+            <Button
+                android:id="@+id/polygon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="다각형" />
+
+            <Button
+                android:id="@+id/cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="취소" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/altitudeBtns"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/list_view"
