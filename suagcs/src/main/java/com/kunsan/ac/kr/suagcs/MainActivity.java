@@ -615,17 +615,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
         VehicleMode vehicleMode = vehicleState.getVehicleMode();
         LatLng goalPosition = mMarkerGuide.getPosition();
-        try {
-            LatLng gps = new LatLng(vehiclePosition.getLatitude(),vehiclePosition.getLongitude());
-            //가이드 모드일때 맵에 목적지를 클릭하면
-            if(vehicleMode == VehicleMode.COPTER_GUIDED){
-                if(gps == goalPosition){
-                    return true;
+        if(vehiclePosition != null){
+            try {
+                LatLng gps = new LatLng(vehiclePosition.getLatitude(),vehiclePosition.getLongitude());
+                //가이드 모드일때 맵에 목적지를 클릭하면
+                if(vehicleMode == VehicleMode.COPTER_GUIDED){
+                    if(gps == goalPosition){
+                        return true;
+                    }
                 }
+            }catch (Exception e){
+                e.printStackTrace();
+                Log.d("mylog","gps가 안잡혔어");
             }
-        }catch (Exception e){
-            e.printStackTrace();
-            Log.d("mylog","gps가 안잡혔어");
         }
         return false;
     }
