@@ -21,5 +21,4 @@
             android:name="com.naver.maps.map.CLIENT_ID"
             android:value="g7am17sezv" />
     </application>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 </manifest>
