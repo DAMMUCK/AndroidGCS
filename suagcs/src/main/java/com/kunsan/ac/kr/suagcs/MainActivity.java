@@ -489,6 +489,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
+    //update 연결버튼
     protected void updateConnectedButton(Boolean isConnected) {
         Button connectButton = (Button) findViewById(R.id.connectBtn);
         if (isConnected) {
@@ -498,6 +499,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    //update arm버튼
     protected void updateArmButton() {
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
         Button armButton = (Button) findViewById(R.id.arm);
@@ -520,18 +522,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    //고도 업데이트
     protected void updateAltitude() {
         TextView altitudeTextView = (TextView) findViewById(R.id.altitudeValue);
         Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
         altitudeTextView.setText(String.format("%3.1f", droneAltitude.getAltitude()) + "m");
     }
 
+    //속도 업데이트
     protected void updateSpeed() {
         TextView speedTextView = (TextView) findViewById(R.id.speedValue);
         Speed droneSpeed = this.drone.getAttribute(AttributeType.SPEED);
         speedTextView.setText(String.format("%3.1f", droneSpeed.getGroundSpeed()) + "m/s");
     }
 
+    //내 위치 업데이트
     protected  void updateMyLocation(){
         Log.d("my_location","내 위치표시 함수 들어왔당");
 
@@ -603,7 +608,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     mMarkerGuide.setPosition(latLng);
                     mMarkerGuide.setMap(myMap);
                     mMarkerGuide.setIcon(guideIcon);
-                    guideMode(latLng);
+                    LatLong latlong = new LatLong(latLng.latitude , latLng.longitude);
+                    guide(latlong);
                 }
             });
         }
@@ -683,6 +689,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         textView_yaw.setText((int) yaw + "deg");
     }
 
+    //배터리 업데이트
     private void BatteryUpdate(){
         TextView textView_Vol = (TextView) findViewById(R.id.voltageValueTextView);
         Battery battery = this.drone.getAttribute(AttributeType.BATTERY);
