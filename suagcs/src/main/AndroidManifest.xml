@@ -22,5 +22,4 @@
             android:value="g7am17sezv" />
     </application>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
 </manifest>
