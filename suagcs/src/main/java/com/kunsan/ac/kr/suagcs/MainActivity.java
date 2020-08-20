@@ -577,7 +577,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             myLocation.setMap(myMap);
 
             //기체가 지나갔던 길을 폴리라인으로 그려주기
-            polyline = new PolylineOverlay();
             polyline.setCoords(gpsCoords);
             polyline.setColor(Color.GREEN);
             polyline.setMap(myMap);
@@ -827,7 +826,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View view) {
                 //지도 초기화
                 Toast.makeText(getApplicationContext(), "초기화", Toast.LENGTH_SHORT).show();
-                if(myLocation != null){myLocation.setMap(null);}
                 if(mMarkerGuide != null){mMarkerGuide.setMap(null);}
                 if(polyline != null){polyline.setMap(null);}
                 VehicleApi.getApi(drone).setVehicleMode(VehicleMode.COPTER_STABILIZE, new SimpleCommandListener() {
