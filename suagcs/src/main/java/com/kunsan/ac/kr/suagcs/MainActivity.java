@@ -118,7 +118,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public int Reached_Count = 0;
 
     //폴리라인 그리기 위해 내 위치들 저장하는 리스트
-    private List<LatLng> gpsCoords = new ArrayList<>();
+    private List<LatLng> guideCoords = new ArrayList<>();
+    private List<LatLng> abCoords = new ArrayList<>();
+    private List<LatLng> polygonCoords = new ArrayList<>();
 
     private final Handler handler = new Handler();
 
@@ -413,7 +415,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 UpdateYaw();
                 break;
             case AttributeEvent.GPS_POSITION:
-                updateMyLocation();
+                updateMyState();
                 break;
             default:
                 // Log.i("DRONE_EVENT", event); //Uncomment to see events from the drone
@@ -537,7 +539,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     //내 위치 업데이트
-    protected  void updateMyLocation(){
+    protected  void updateMyState(){
         Log.d("my_location","내 위치표시 함수 들어왔당");
 
         //기체의 gps값 받아오기
@@ -551,14 +553,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if(vehiclePosition == null){
                 Log.d("gpsNull", "gps가 아직 안잡혀서 널값들어갔다. 다시");
         } else {
-            try{
-                //기체 위치를 gps저장하는 리스트에 저장하기
-                LatLng gps = new LatLng(vehiclePosition.getLatitude(),vehiclePosition.getLongitude());
-                gpsCoords.add(gps);
-            } catch (Exception e){
-                e.printStackTrace();
-                Log.d("gps", gpsCoords.toString());
-            }
             //기체의 gps값으로 마커위치 지정하고 이미지 입히기
             myLocation.setIcon(OverlayImage.fromResource(R.drawable.marker_icon));
             myLocation.setWidth(20);
@@ -575,35 +569,48 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             float yaw = (float)attitude.getYaw();
             myLocation.setAngle(yaw);
             myLocation.setMap(myMap);
-
-            //기체가 지나갔던 길을 폴리라인으로 그려주기
-            polyline.setCoords(gpsCoords);
-            polyline.setColor(Color.GREEN);
-            polyline.setMap(myMap);
-
-            State vehicleState = this.drone.getAttribute(AttributeType.STATE);
-            VehicleMode vehicleMode = vehicleState.getVehicleMode();
-
         }
-        changeGoal();
+        State vehicleState = this.drone.getAttribute(AttributeType.STATE);
+        VehicleMode vehicleMode = vehicleState.getVehicleMode();
+        if(vehicleMode == VehicleMode.COPTER_GUIDED){
+            guideModeState();
+            changeGoal();
+        }
         if(checkGoal()==true){
             changeToLoiter();
             mMarkerGuide.setMap(null);
         }
     }
 
+    //가이드 모드일때
+    private void guideModeState(){
+            if(vehiclePosition == null){
+                Log.d("gpsNull", "gps가 아직 안잡혀서 널값들어갔다. 다시");
+            } else {
+                try {
+                    //기체 위치를 gps저장하는 리스트에 저장하기
+                    LatLng gps = new LatLng(vehiclePosition.getLatitude(), vehiclePosition.getLongitude());
+                    guideCoords.add(gps);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.d("gps", guideCoords.toString());
+                }
+
+                //기체가 지나갔던 길을 폴리라인으로 그려주기
+                polyline.setCoords(guideCoords);
+                polyline.setColor(Color.BLUE);
+                polyline.setMap(myMap);
+            }
+
+    }
 
     //가이드 모드일때 목표지점을 바꾸면 목표지점 바꿔서 다시 시작하기
     private void changeGoal(){
-        State vehicleState = this.drone.getAttribute(AttributeType.STATE);
-        VehicleMode vehicleMode = vehicleState.getVehicleMode();
-
-        //가이드 모드일때 맵에 목적지를 클릭하면
-        if(vehicleMode == VehicleMode.COPTER_GUIDED){
             myMap.setOnMapClickListener(new NaverMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(@NonNull PointF pointF, @NonNull LatLng latLng) {
                     //목적지 바꾸기
+                    alertUser("목적지를 변경합니다");
                     mMarkerGuide.setPosition(latLng);
                     mMarkerGuide.setMap(myMap);
                     mMarkerGuide.setIcon(guideIcon);
@@ -611,7 +618,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     guide(latlong);
                 }
             });
-        }
     }
 
 
@@ -844,9 +850,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         alertUser("stabilize 모드로 변경 실패.");
                     }
                 });
-                if(gpsCoords != null){
-                    for(LatLng latlng:gpsCoords){
-                        gpsCoords.remove(latlng);
+                if(guideCoords != null){
+                    for(LatLng latlng:guideCoords){
+                        guideCoords.remove(latlng);
+                    }
+                }
+                if(abCoords != null){
+                    for(LatLng latlng:abCoords){
+                        abCoords.remove(latlng);
+                    }
+                }
+                if(polygonCoords != null){
+                    for(LatLng latlng:polygonCoords){
+                        polygonCoords.remove(latlng);
                     }
                 }
             }
