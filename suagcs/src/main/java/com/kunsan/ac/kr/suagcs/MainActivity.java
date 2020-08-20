@@ -232,6 +232,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         uiSettings = naverMap.getUiSettings();
         uiSettings.setLogoMargin(2080, 0, 0, 925);
 
+        //나침반 제거
+        uiSettings.setCompassEnabled(false);
+
+        // 축척 바 제거
+        uiSettings.setScaleBarEnabled(false);
+
+        // 줌 버튼 제거
+        uiSettings.setZoomControlEnabled(false);
+
         // 이륙고도 표시
         ShowTakeOffAltitude();
 
