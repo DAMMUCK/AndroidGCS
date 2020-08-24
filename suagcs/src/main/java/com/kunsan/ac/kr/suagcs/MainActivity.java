@@ -163,6 +163,36 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     TableLayout layout, missionLayout;
     LinearLayout altitudeLayout;
 
+    //어떤 미션을 수행중인지 확인하는 변수
+    private MissionState missionState = MissionState.NONE;
+    private ABState abState = ABState.NONE;
+    private PolygonState polygonState = PolygonState.NONE;
+
+    //
+    public enum MissionState {
+        NONE,
+        POLYGON,
+        AB
+    }
+
+    public enum ABState{
+        SET_POINT_A,
+        SET_POINT_B,
+        MISSION_START,
+        MISSION_PAUSE,
+        MISSION_SEND,
+        NONE
+    }
+
+    public enum PolygonState{
+        SELECT_POINT,
+        MISSION_START,
+        MISSION_PAUSE,
+        MISSION_SEND,
+        NONE
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //맵 실행 되기 전
@@ -426,6 +456,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             case AttributeEvent.GPS_POSITION:
                 updateMyState();
                 break;
+            case AttributeEvent.MISSION_UPDATED:
+                updateMissionButton(missionState);
             default:
                 // Log.i("DRONE_EVENT", event); //Uncomment to see events from the drone
                 break;
@@ -508,6 +540,32 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else {
             connectButton.setText("Connect");
         }
+    }
+
+    protected void updateMissionButton(MissionState mission){
+        Button missionButton = (Button) findViewById(R.id.missionBtn);
+        if(mission == MissionState.NONE){
+            missionButton.setText("미션");
+        }else if(mission == MissionState.AB){
+            missionButton.setText("AB");
+        }else if(mission == MissionState.POLYGON){
+            missionButton.setText("다각형");
+        }
+    }
+
+    protected void update_AB_Mission(ABState state){
+        Button stateButton = (Button) findViewById(R.id.missionStateBtn);
+        if(state == ABState.NONE) {
+            stateButton.setText("A지점선택");
+        }else if(state == ABState.SET_POINT_A){
+            stateButton.setText("B지점선택");
+        }else if(state == ABState.MISSION_SEND){
+            stateButton.setText("임무전송");
+        }else if(state == ABState.MISSION_START) {
+            stateButton.setText("임무시작");
+        }
+        //여기부터 다시 고쳐
+
     }
 
     //update arm버튼
@@ -1216,5 +1274,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void alertUser(String message) {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
         Log.d(TAG, message);
+    }
+
+    public MissionState getMissionState() {
+        return missionState;
+    }
+
+    public void setMissionState(MissionState missionState) {
+        this.missionState = missionState;
     }
 }

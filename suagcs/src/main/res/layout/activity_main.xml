@@ -49,6 +49,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/missionBtn"
             android:text="미션"
+
             />
 
         <TableLayout
@@ -143,6 +144,17 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
+        android:id="@+id/missionStateBtn"
+        android:layout_width="130dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="232dp"
+        android:layout_marginBottom="4dp"
+        android:background="#d90099ff"
+        android:text="A지점선택"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
         android:id="@+id/lock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -213,7 +225,7 @@
         android:id="@+id/info_linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#ffffff"
+        android:background="#d9ffffff"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
