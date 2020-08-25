@@ -71,6 +71,7 @@ import com.o3dr.services.android.lib.drone.property.VehicleMode;
 import com.o3dr.services.android.lib.gcs.link.LinkConnectionStatus;
 import com.o3dr.services.android.lib.model.AbstractCommandListener;
 import com.o3dr.services.android.lib.model.SimpleCommandListener;
+import com.o3dr.services.android.lib.util.MathUtils;
 
 import org.w3c.dom.Text;
 
@@ -80,6 +81,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.sql.Time;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -167,8 +169,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private MissionState missionState = MissionState.NONE;
     private ABState abState = ABState.NONE;
     private PolygonState polygonState = PolygonState.NONE;
+    private int width = 5;
 
-    //
     public enum MissionState {
         NONE,
         POLYGON,
@@ -562,9 +564,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }else if(state == ABState.MISSION_SEND){
             stateButton.setText("임무전송");
         }else if(state == ABState.MISSION_START) {
+            stateButton.setText("임무중지");
+        }else if(state == ABState.MISSION_PAUSE){
             stateButton.setText("임무시작");
         }
-        //여기부터 다시 고쳐
 
     }
 
@@ -1274,6 +1277,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void alertUser(String message) {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
         Log.d(TAG, message);
+
+        
     }
 
     public MissionState getMissionState() {
