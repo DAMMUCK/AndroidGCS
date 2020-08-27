@@ -170,6 +170,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     LinearLayout altitudeLayout,abWidth_Layout,flight_width_layout;
 
     //어떤 미션을 수행중인지 확인하는 변수
+    Mission mMission = new Mission();
     private MissionState missionState = MissionState.NONE;
     private ABState abState = ABState.NONE;
     private PolygonState polygonState = PolygonState.NONE;
@@ -1166,16 +1167,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 @Override
                 public void onMapClick(@NonNull PointF pointF, @NonNull LatLng latLng) {
                     abCoords.add(latLng);
-                    AB_Count++;
-                    Marker abMarker = new Marker();
-                    abMarker.setPosition(latLng);
-                    abMarker.setHeight(60);
-                    abMarker.setWidth(60);
-                    abMarker.setIcon(OverlayImage.fromResource(R.drawable.A));
-                    if(AB_Count == 1){
+                    Marker Marker = new Marker();
+                    Marker.setPosition(latLng);
+                    if(AB_Count == 0){
+                        Marker.setIcon(OverlayImage.fromResource(R.drawable.marker_A));
+                        Marker.setMap(myMap);
+                        AB_Count++;
+                        ab_Marker.add(Marker);
+                    }else if(AB_Count == 1){
                         ABmissionStateBtn.setText("B지점 선택");
+                        Marker.setIcon(OverlayImage.fromResource(R.drawable.marker_B));
+                        Marker.setMap(myMap);
+                        ab_Marker.add(Marker);
+                        AB_Count++;
                     }else if(AB_Count == 2){
                         ABmissionStateBtn.setText("임무 전송");
+
                     }
                 }
             });
