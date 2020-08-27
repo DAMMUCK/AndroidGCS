@@ -16,7 +16,7 @@
 
     <LinearLayout
         android:id="@+id/list_view"
-        android:layout_width="650dp"
+        android:layout_width="wrap_content"
         android:layout_height="150dp"
         android:orientation="horizontal"
         app:layout_constraintStart_toStartOf="parent"
@@ -38,6 +38,84 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+
+        app:layout_constraintEnd_toStartOf="@+id/linearLayout3"
+        app:layout_constraintTop_toBottomOf="@+id/info_linearLayout"
+        android:visibility="invisible">
+
+        <Button
+            android:id="@+id/abWidth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="AB거리" />
+
+        <LinearLayout
+            android:id="@+id/abWidth_Layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="invisible">
+
+            <Button
+                android:id="@+id/abWidth_plus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+10" />
+
+            <Button
+                android:id="@+id/abWidth_minus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-10" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toStartOf="@+id/linearLayout"
+        app:layout_constraintTop_toBottomOf="@+id/info_linearLayout"
+        android:visibility="invisible">
+
+        <Button
+            android:id="@+id/flight_width"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="비행폭" />
+
+        <LinearLayout
+            android:id="@+id/flight_width_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="invisible">
+
+            <Button
+                android:id="@+id/flight_width_plus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+0.5" />
+
+            <Button
+                android:id="@+id/flight_width_minus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-0.5" />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -45,17 +123,17 @@
         app:layout_constraintTop_toBottomOf="@+id/info_linearLayout">
 
         <Button
+            android:id="@+id/missionBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/missionBtn"
             android:text="미션"
 
             />
 
         <TableLayout
+            android:id="@+id/missionTableLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/missionTableLayout"
             android:visibility="invisible">
 
             <Button
@@ -65,16 +143,16 @@
                 android:text="AB" />
 
             <Button
+                android:id="@+id/polygon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="다각형"
-                android:id="@+id/polygon"/>
+                android:text="다각형" />
 
             <Button
+                android:id="@+id/cancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="cancel"
-                android:id="@+id/cancel"/>
+                android:text="cancel" />
 
         </TableLayout>
 

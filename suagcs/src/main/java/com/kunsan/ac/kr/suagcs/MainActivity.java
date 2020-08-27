@@ -460,6 +460,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
             case AttributeEvent.MISSION_UPDATED:
                 updateMissionButton(missionState);
+                update_AB_Mission(abState);
+            case AttributeEvent.MISSION_SENT:
+                break;
+            case AttributeEvent.MISSION_ITEM_REACHED:
+                break;
             default:
                 // Log.i("DRONE_EVENT", event); //Uncomment to see events from the drone
                 break;
@@ -550,8 +555,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             missionButton.setText("미션");
         }else if(mission == MissionState.AB){
             missionButton.setText("AB");
+            missionLayout.setVisibility(View.INVISIBLE);
         }else if(mission == MissionState.POLYGON){
             missionButton.setText("다각형");
+            missionLayout.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -993,14 +1000,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         abBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                missionState = MissionState.AB;
             }
         });
 
         polygonBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                missionState = MissionState.POLYGON;
             }
         });
 
@@ -1154,6 +1161,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void setAltitudeDown(){
         int altitude = getTakeOffAltitude();
         setTakeOffAltitude(--altitude);
+    }
+
+    private void mission_AB(){
+
+    }
+
+    private void mission_Polygon(){
+
     }
 
     // ************************ 비행 모드 변경 ******************************
