@@ -58,6 +58,7 @@ import com.o3dr.services.android.lib.drone.companion.solo.SoloAttributes;
 import com.o3dr.services.android.lib.drone.companion.solo.SoloState;
 import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
+import com.o3dr.services.android.lib.drone.mission.Mission;
 import com.o3dr.services.android.lib.drone.property.Altitude;
 import com.o3dr.services.android.lib.drone.property.Attitude;
 import com.o3dr.services.android.lib.drone.property.Battery;
@@ -106,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private Spinner modeSelector;
 
-    private int Marker_Count = 0;
+
     private int Recycler_Count = 0;
     private int takeOffAltitude = 3;
     private int Auto_Marker_Count = 0;
@@ -122,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     //폴리라인 그리기 위해 내 위치들 저장하는 리스트
     private List<LatLng> guideCoords = new ArrayList<>();
     private List<LatLng> abCoords = new ArrayList<>();
+    private List<Marker> ab_Marker = new ArrayList<>();
     private List<LatLng> polygonCoords = new ArrayList<>();
 
     private final Handler handler = new Handler();
@@ -153,6 +155,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     Button armBtn, lockBtn, mapTypeBtn, cadastralOffBtn, clearBtn, connectBtn;
     Button basicMap, terrainMap, satelliteMap;
     Button missionBtn, abBtn, cancelBtn, polygonBtn;
+    Button flight_width_Btn, flight_width_plus_Btn, flight_width_minus_Btn;
+    Button abWidth_Btn, abWidth_plus_Btn, abWidth_minus_Btn, ABmissionStateBtn;
 
     //이륙고도 버튼
     Button takeOffAltitudeBtn;
@@ -163,13 +167,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //layout 변수
     TableLayout layout, missionLayout;
-    LinearLayout altitudeLayout;
+    LinearLayout altitudeLayout,abWidth_Layout,flight_width_layout;
 
     //어떤 미션을 수행중인지 확인하는 변수
     private MissionState missionState = MissionState.NONE;
     private ABState abState = ABState.NONE;
     private PolygonState polygonState = PolygonState.NONE;
     private int width = 5;
+    private int AB_Count=0;
 
     public enum MissionState {
         NONE,
@@ -458,9 +463,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             case AttributeEvent.GPS_POSITION:
                 updateMyState();
                 break;
-            case AttributeEvent.MISSION_UPDATED:
-                updateMissionButton(missionState);
-                update_AB_Mission(abState);
             case AttributeEvent.MISSION_SENT:
                 break;
             case AttributeEvent.MISSION_ITEM_REACHED:
@@ -547,35 +549,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else {
             connectButton.setText("Connect");
         }
-    }
-
-    protected void updateMissionButton(MissionState mission){
-        Button missionButton = (Button) findViewById(R.id.missionBtn);
-        if(mission == MissionState.NONE){
-            missionButton.setText("미션");
-        }else if(mission == MissionState.AB){
-            missionButton.setText("AB");
-            missionLayout.setVisibility(View.INVISIBLE);
-        }else if(mission == MissionState.POLYGON){
-            missionButton.setText("다각형");
-            missionLayout.setVisibility(View.INVISIBLE);
-        }
-    }
-
-    protected void update_AB_Mission(ABState state){
-        Button stateButton = (Button) findViewById(R.id.missionStateBtn);
-        if(state == ABState.NONE) {
-            stateButton.setText("A지점선택");
-        }else if(state == ABState.SET_POINT_A){
-            stateButton.setText("B지점선택");
-        }else if(state == ABState.MISSION_SEND){
-            stateButton.setText("임무전송");
-        }else if(state == ABState.MISSION_START) {
-            stateButton.setText("임무중지");
-        }else if(state == ABState.MISSION_PAUSE){
-            stateButton.setText("임무시작");
-        }
-
     }
 
     //update arm버튼
@@ -820,12 +793,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         polygonBtn = (Button)findViewById(R.id.polygon);
         cancelBtn = (Button) findViewById(R.id.cancel);
 
+        flight_width_Btn = (Button) findViewById(R.id.flight_width);
+        flight_width_plus_Btn = (Button) findViewById(R.id.flight_width_plus) ;
+        flight_width_minus_Btn = (Button) findViewById(R.id.flight_width_minus);
+        abWidth_Btn = (Button) findViewById(R.id.abWidth);
+        abWidth_plus_Btn = (Button) findViewById(R.id.abWidth_plus);
+        abWidth_minus_Btn = (Button) findViewById(R.id.abWidth_minus);
+        ABmissionStateBtn = (Button) findViewById(R.id.missionStateBtn);
+
         //*************************** 기본 ui 버튼 제어
 
         //LinearLayout 변수
         layout = (TableLayout) findViewById(R.id.mapTypeLayout);
         altitudeLayout = (LinearLayout) findViewById(R.id.altitudeState);
         missionLayout = (TableLayout) findViewById(R.id.missionTableLayout);
+        abWidth_Layout = (LinearLayout) findViewById(R.id.abWidth_Layout);
+        flight_width_layout = (LinearLayout) findViewById(R.id.flight_width_layout);
 
         /*앱 잠금 버튼 클릭 시 이벤트
         앱 잠금 상태 :맵을 드래그하면 맵이 자동으로 기체의 위치가 가운데인 생태로 조정된다. -> 드론 gps 값으로 카메라 고정
@@ -971,6 +954,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        //연결 버튼
         connectBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -978,6 +962,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        //아밍버튼
         armBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -997,24 +982,36 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        //미션 -> ab버튼
         abBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 missionState = MissionState.AB;
+                missionBtn.setText("AB");
+                missionLayout.setVisibility(View.INVISIBLE);
+                flight_width_Btn.setVisibility(View.VISIBLE);
+                abWidth_Btn.setVisibility(View.VISIBLE);
+                ABmissionStateBtn.setVisibility(View.VISIBLE);
+                mission_AB();
             }
         });
 
+
+        //미션 -> 폴리곤
         polygonBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 missionState = MissionState.POLYGON;
+                missionBtn.setText("Polygon");
             }
         });
 
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                missionState = MissionState.NONE;
+                alertUser("미션 취소");
+                missionLayout.setVisibility(View.INVISIBLE);
             }
         });
 
@@ -1164,7 +1161,26 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void mission_AB(){
+        if(missionState == MissionState.AB){
+            myMap.setOnMapClickListener(new NaverMap.OnMapClickListener() {
+                @Override
+                public void onMapClick(@NonNull PointF pointF, @NonNull LatLng latLng) {
+                    abCoords.add(latLng);
+                    AB_Count++;
+                    Marker abMarker = new Marker();
+                    abMarker.setPosition(latLng);
+                    abMarker.setHeight(60);
+                    abMarker.setWidth(60);
+                    abMarker.setIcon(OverlayImage.fromResource(R.drawable.A));
+                    if(AB_Count == 1){
+                        ABmissionStateBtn.setText("B지점 선택");
+                    }else if(AB_Count == 2){
+                        ABmissionStateBtn.setText("임무 전송");
+                    }
+                }
+            });
 
+        }
     }
 
     private void mission_Polygon(){

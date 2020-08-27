@@ -45,13 +45,14 @@
 
         app:layout_constraintEnd_toStartOf="@+id/linearLayout3"
         app:layout_constraintTop_toBottomOf="@+id/info_linearLayout"
-        android:visibility="invisible">
+        >
 
         <Button
             android:id="@+id/abWidth"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="AB거리" />
+            android:text="AB거리"
+            android:visibility="invisible"/>
 
         <LinearLayout
             android:id="@+id/abWidth_Layout"
@@ -82,13 +83,14 @@
         android:orientation="vertical"
         app:layout_constraintEnd_toStartOf="@+id/linearLayout"
         app:layout_constraintTop_toBottomOf="@+id/info_linearLayout"
-        android:visibility="invisible">
+        >
 
         <Button
             android:id="@+id/flight_width"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="비행폭" />
+            android:text="비행폭"
+            android:visibility="invisible"/>
 
         <LinearLayout
             android:id="@+id/flight_width_layout"
@@ -230,7 +232,8 @@
         android:background="#d90099ff"
         android:text="A지점선택"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:visibility="invisible"/>
 
     <Button
         android:id="@+id/lock"
