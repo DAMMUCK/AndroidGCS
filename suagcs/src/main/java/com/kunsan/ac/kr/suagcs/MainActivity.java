@@ -46,6 +46,7 @@ import com.naver.maps.map.util.FusedLocationSource;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
 import com.o3dr.android.client.apis.ControlApi;
+import com.o3dr.android.client.apis.MissionApi;
 import com.o3dr.android.client.apis.VehicleApi;
 import com.o3dr.android.client.interfaces.DroneListener;
 import com.o3dr.android.client.interfaces.LinkListener;
@@ -59,6 +60,7 @@ import com.o3dr.services.android.lib.drone.companion.solo.SoloState;
 import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 import com.o3dr.services.android.lib.drone.mission.Mission;
+import com.o3dr.services.android.lib.drone.mission.item.spatial.Waypoint;
 import com.o3dr.services.android.lib.drone.property.Altitude;
 import com.o3dr.services.android.lib.drone.property.Attitude;
 import com.o3dr.services.android.lib.drone.property.Battery;
@@ -175,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ABState abState = ABState.NONE;
     private PolygonState polygonState = PolygonState.NONE;
     private int width = 5;
-    private int AB_Count=0;
+
 
     public enum MissionState {
         NONE,
@@ -1004,6 +1006,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View view) {
                 missionState = MissionState.POLYGON;
                 missionBtn.setText("Polygon");
+
             }
         });
 
@@ -1015,6 +1018,29 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 missionLayout.setVisibility(View.INVISIBLE);
             }
         });
+
+        abWidth_Btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(abWidth_Layout.getVisibility() == View.INVISIBLE){
+                    abWidth_Layout.setVisibility(View.VISIBLE);
+                }else{
+                    abWidth_Layout.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
+        flight_width_Btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(flight_width_layout.getVisibility() == View.INVISIBLE){
+                    flight_width_layout.setVisibility(View.VISIBLE);
+                }else{
+                    flight_width_layout.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
 
     }
 
@@ -1169,18 +1195,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     abCoords.add(latLng);
                     Marker Marker = new Marker();
                     Marker.setPosition(latLng);
-                    if(AB_Count == 0){
+                    if(abCoords.size() == 0){
                         Marker.setIcon(OverlayImage.fromResource(R.drawable.marker_A));
                         Marker.setMap(myMap);
-                        AB_Count++;
                         ab_Marker.add(Marker);
-                    }else if(AB_Count == 1){
+                    }else if(abCoords.size() == 1){
                         ABmissionStateBtn.setText("B지점 선택");
                         Marker.setIcon(OverlayImage.fromResource(R.drawable.marker_B));
                         Marker.setMap(myMap);
                         ab_Marker.add(Marker);
-                        AB_Count++;
-                    }else if(AB_Count == 2){
+                    }else if(abCoords.size() == 2){
                         ABmissionStateBtn.setText("임무 전송");
 
                     }
@@ -1192,6 +1216,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void mission_Polygon(){
 
+    }
+
+    private void MakeWayPoint(){
+
+    }
+
+    private void setMission(Mission mMission){
+        MissionApi.getApi(this.drone).setMission(mMission,true);
+    }
+
+    private void pauseMission(){
+        MissionApi.getApi(this.drone).pauseMission(null);
+    }
+
+    private void Mission_Sent(){
+        alertUser("미션 업로드 완료");
+        Button sendMissionBtn = (Button) findViewById(R.id.missionStateBtn);
+        sendMissionBtn.setText("임무 시작");
     }
 
     // ************************ 비행 모드 변경 ******************************
